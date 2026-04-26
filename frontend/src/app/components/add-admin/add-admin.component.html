@@ -1,0 +1,21 @@
+<div class="container mt-3">
+  <h2>Add Admin</h2>
+  <form [formGroup]="Admin" (ngSubmit)="addAdmin()">
+    <div class="mb-3">
+      <label>Name:</label>
+      <input type="text" class="form-control" formControlName="userName" name="name" required>
+    </div>
+
+    <div class="mb-3">
+      <label>Email:</label>
+      <input type="email" class="form-control" formControlName="email" name="email" required>
+    </div>
+
+    <div class="mb-3">
+      <label>Password:</label>
+      <input type="password" class="form-control" formControlName="password" name="password" required>
+    </div>
+
+    <button class="btn btn-primary" type="submit">Add Admin</button>
+  </form>
+</div>

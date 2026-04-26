@@ -1,0 +1,14 @@
+.btn {
+  background-color: #a8729a;
+  border-radius: 15px;
+  padding: 5px 15px;
+  color: #ffffff;
+  border: none;
+}
+
+.btn:hover {
+  background-color:  #96748d;
+}
+.form-main{
+    margin: 0px 30px 0px 30px;
+}

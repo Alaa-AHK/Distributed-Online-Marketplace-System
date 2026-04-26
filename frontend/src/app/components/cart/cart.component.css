@@ -1,0 +1,18 @@
+.btn-sm-custom {
+  padding: 2px 8px 2px 8px; 
+  font-size: 14px;   
+  line-height: 1;    
+  height: 32px; 
+  margin: 0px 5px 0px 5px;    
+}
+.btn {
+  background-color: #a8729a;
+  border-radius: 15px;
+  padding: 5px 15px;
+  color: #ffffff;
+  border: none;
+}
+
+.btn:hover {
+  background-color:  #96748d;
+}

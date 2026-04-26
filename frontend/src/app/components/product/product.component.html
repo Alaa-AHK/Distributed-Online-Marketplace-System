@@ -1,0 +1,81 @@
+@if (userRole === 'admin') {
+  <div class="mb-3 text-center" style="margin-top: 10px;" >
+    <button class="btn btn-success" (click)="showCreateForm = !showCreateForm">
+      <i class="bi bi-plus-circle-fill"></i> Create Product
+    </button>
+  </div>
+  <div class="mb-3 text-center" style="margin-top: 10px;">
+    <button class="btn btn-success" routerLink="/addAdmin">
+      <i class="bi bi-plus-circle-fill"></i> Add Admin
+    </button>
+  </div>
+}
+
+@if(showCreateForm){
+  <div  class="card p-3 mb-3 mx-auto col-md-6">
+  <form [formGroup]="productCreate" (ngSubmit)="sendData()">
+    <div class="mb-2">
+      <input type="text" placeholder="Name" formControlName="name" class="form-control" />
+    </div>
+    <div class="mb-2">
+      <input type="text" placeholder="Description" formControlName="description" class="form-control" />
+    </div>
+    <div class="mb-2">
+      <input type="number" placeholder="Price" formControlName="price" class="form-control" />
+    </div>
+    <div class="mb-2">
+      <input type="text" placeholder="Image URL" formControlName="image" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary" [disabled]="!productCreate.valid">
+      <i class="bi bi-save-fill"></i> Save Product
+    </button>
+  </form>
+</div>
+
+}
+
+
+
+
+<div class='container-fluid'>
+  <div class="row ">
+    @for(product of products;track $index){
+      <div class="col-md-3 col-sm-4 col-6 " style="margin-top: 10px;">
+      <div class="card h-100 w-75" style="border-radius: 30px;">
+        <img class='mx-auto img-thumbnail'
+             [src]="product.image || 'images/trending-01.jpg'" 
+             width="200" height="100"/>
+        <div class="card-body text-center">
+          <h5 class="card-title font-weight-bold">{{product.name}}</h5>
+          <p class="card-text">${{product.price}}</p>
+          <a class="btn details px-auto" [routerLink]="['/product', product._id]">
+            View Details
+          </a>
+          <br />
+          <a href="#" class="btn cart px-auto mt-2"
+            (click)="addToCart(product, $event)">
+            Add to Cart
+          </a>
+
+
+
+          @if(userRole === 'admin'){
+            <div  class="mt-2">
+            <button (click)="deleteProduct(product._id)" class="btn btn-danger me-2">
+              <i class="bi bi-trash3-fill"></i>
+            </button>
+            <button (click)="goToUpdatePage(product._id)" class="btn btn-warning">
+  <i class="bi bi-pencil-fill"></i>
+</button>
+
+          </div>
+          }
+          
+        </div>
+      </div>
+    </div>
+    }
+    
+  </div>
+</div>
+

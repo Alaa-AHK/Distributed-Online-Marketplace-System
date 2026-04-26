@@ -1,0 +1,98 @@
+@if(productsCart.length > 0){<section class="h-100 gradient-custom" >
+
+  <div class="container py-5">
+    <div class="row d-flex justify-content-center my-4">
+      <div class="col-md-8">
+        <div class="card mb-4">
+          <div class="card-header py-3">
+            <h5 class="mb-0">Cart - {{ productsCart.length }} items</h5>
+            <button class="btn btn-danger btn-sm" (click)="deleteAllCart()">
+  <i class="bi bi-trash3-fill"></i> RemoveAllCart
+</button>
+          </div>
+          <div class="card-body">
+           <div class="row" *ngFor="let item of productsCart">
+  <!-- Product Image -->
+  <div class="col-lg-3 col-md-12 mb-4 mb-lg-0">
+    <img 
+      [src]="item.productId?.image" 
+      class="w-100" 
+      alt="{{ item.productId?.name }}" />
+  </div>
+
+  <!-- Product Details -->
+  <div class="col-lg-5 col-md-6 mb-4 mb-lg-0">
+    <p><strong>{{ item.productId?.name }}</strong></p>
+    <p>Price: ${{ item.productId?.price }}</p>
+    <button class="btn btn-danger btn-sm" (click)="deleteItem(item.productId._id)">
+  <i class="bi bi-trash3-fill"></i> Remove
+</button>
+  </div>
+
+  <!-- Quantity -->
+<div class="col-lg-4 col-md-6 mb-4 mb-lg-0">
+  <div class="d-flex mb-4" style="max-width: 300px">
+    <button 
+      class="btn btn-primary" 
+      (click)="updateCartQuan(item.productId._id, item.quantity - 1)" 
+      [disabled]="item.quantity <= 1">
+      -
+    </button>
+
+    <input 
+      type="number" 
+      [(ngModel)]="item.quantity" 
+      min="1" 
+      class="form-control mx-2"
+      (change)="updateCartQuan(item.productId._id, item.quantity)" />
+
+    <button 
+      class="btn btn-primary" 
+      (click)="updateCartQuan(item.productId._id, item.quantity + 1)">
+      +
+    </button>
+  </div>
+  <p><strong>${{ (item.productId?.price || 0) * item.quantity }}</strong></p>
+</div>
+</div>
+
+            <hr class="my-4" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Summary -->
+      <div class="col-md-4">
+        <div class="card mb-4">
+          <div class="card-header py-3">
+            <h5 class="mb-0">Summary</h5>
+          </div>
+          <div class="card-body">
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0">
+                Products <span>${{ getTotal() }}</span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                Shipping <span>Free</span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 mb-3">
+                <div><strong>Total</strong></div>
+                <span><strong>${{ getTotal() }}</strong></span>
+              </li>
+            </ul>
+            <button class="btn " (click)="checkout()">Go to checkout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>}
+<!-- Empty Cart -->
+@else {
+    <div class="text-center py-5">
+    <h4>Your cart is empty!</h4>
+    <a routerLink="/product" class="btn btn-primary mt-3">Continue Shopping</a>
+  </div>
+
+}
+

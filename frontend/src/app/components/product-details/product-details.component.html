@@ -1,0 +1,24 @@
+<div class="container mt-5" *ngIf="product">
+  <div class="row">
+    <div class="col-md-6 mb-4">
+      <img [src]="product.image || 'images/default.jpg'" 
+           alt="Product" class="img-fluid rounded mb-3 product-image">
+    </div>
+
+    <div class="col-md-6">
+      <h2 class="mb-3">{{ product.name }}</h2>
+      <p class="text-muted mb-4">SKU: {{ product._id }}</p>
+      <div class="mb-3">
+        <span class="h4 me-2">${{ product.price }}</span>
+        <span class="text-muted" *ngIf="product.discount">
+          <s>${{ product.price + product.discount }}</s>
+        </span>
+      </div>
+      <p class="mb-4">{{ product.description }}</p>
+      <button class="btn "(click)="addToCart(product, $event)">
+        <i class="bi bi-cart-plus"></i> Add to Cart
+      </button>
+
+    </div>
+  </div>
+</div>
