@@ -1,0 +1,7 @@
+{
+  "name": "distributed-online-marketplace-system",
+  "private": true,
+  "scripts": {
+    "smoke": "npm --prefix backend run smoke"
+  }
+}

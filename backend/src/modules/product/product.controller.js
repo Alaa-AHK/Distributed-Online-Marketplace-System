@@ -66,8 +66,8 @@ const deleteProduct=async (req,res)=>{
     
 
     const user = await userModel.findById(userId);
-    if (!user || user.role !== "customer") {
-      return res.status(403).json({ message: "Only customers can add ratings" });
+    if (!user || user.role !== "buyer") {
+      return res.status(403).json({ message: "Only buyers can add ratings" });
     }
 
     const product = await productModel.findById(productId);

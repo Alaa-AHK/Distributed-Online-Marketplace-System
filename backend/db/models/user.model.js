@@ -1,33 +1,13 @@
-import { model, Schema } from "mongoose";
+import mongoose from 'mongoose';
+import { connections } from '../config/db.js';
 
-const userSchema = new Schema({
-    email: { type: String, required: true },
-    password: { type: String, required: true },
-    userName: String,
-    age: Number,
+const userSchema = new mongoose.Schema({
+  userName:    { type: String, required: true },
+  email:       { type: String, required: true, unique: true },
+  password:    { type: String, required: true },
+  role:        { type: String, enum: ['buyer', 'seller', 'admin'], default: 'buyer' },
+  balance:     { type: Number, default: 0 },      // ← controller uses user.balance
+  isConfirmed: { type: Boolean, default: false },  // ← verifyAccount uses this
+}, { timestamps: true });
 
-   role: {
-    type: [String],
-    enum: ["seller", "buyer", "admin"],
-    default: ["buyer"]
-},
-
-    isConfirmed: {
-        type: Boolean,
-        default: false
-    },
-
-    balance: {
-        type: Number,
-        default: 0
-    },
-
-    phone: String,
-    address: String
-
-}, {
-    timestamps: true,
-    versionKey: false
-});
-
-export const userModel = model("user", userSchema);
+export const userModel = connections.userDB.model('User', userSchema);

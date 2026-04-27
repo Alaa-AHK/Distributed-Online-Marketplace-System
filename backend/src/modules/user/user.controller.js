@@ -93,7 +93,9 @@ const register=async(req,res)=>{
     const userData = { ...req.body, role };
     console.log("Request body:", req.body);
     const addedUser=await userModel.insertOne(userData)
-    sendMail(req.body.email)
+    sendMail(req.body.email).catch((error) => {
+      console.error("sendMail failed:", error?.message ?? error);
+    })
     addedUser.password=undefined//for not return to user the password with the value
     res.json({message:"register is successful",addedUser})  
     }
@@ -111,9 +113,9 @@ const login =async(req,res)=>{
     }
     const matchPass=bcrypt.compareSync(req.body.password, exist.password)
     if(!matchPass){
-        res.status(401).json({message:"email or password invalid"})
+      return res.status(401).json({message:"email or password invalid"})
 }
-    const token=jwt.sign({_id:exist._id,role:exist.role},"Day4")//sign for hash //verfiy for check //decode for not hash
+    const token=jwt.sign({_id:exist._id,role:exist.role,email:exist.email},"Day4")//sign for hash //verfiy for check //decode for not hash
     res.json({message:`welecome ${exist.userName}`,token})
     }
     catch(error){

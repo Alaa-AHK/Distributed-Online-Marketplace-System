@@ -6,6 +6,9 @@ const purchase = async (req, res) => {
   try {
     const userId = req.user._id;
     const { productId } = req.body; // 🔥 مهم جدًا
+    if (!productId) {
+      return res.status(400).json({ message: "productId is required" });
+    }
 
     const product = await productModel.findById(productId);
 
@@ -48,14 +51,19 @@ const purchase = async (req, res) => {
   }
 };
 const getMyTransactions = async (req, res) => {
-  const transactions = await transactionModel.find({
-    $or: [
-      { buyer: req.user._id },
-      { seller: req.user._id }
-    ]
-  }).populate("product");
+  try {
+    const transactions = await transactionModel
+      .find({
+        $or: [{ buyer: req.user._id }, { seller: req.user._id }],
+      })
+      .populate({ path: "product", model: productModel })
+      .populate({ path: "buyer", model: userModel, select: "-password" })
+      .populate({ path: "seller", model: userModel, select: "-password" });
 
-  res.json({ transactions });
+    res.json({ transactions });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
 };
 const getAllTransactions = async (req, res) => {
   try {
@@ -65,7 +73,9 @@ const getAllTransactions = async (req, res) => {
 
     const transactions = await transactionModel
       .find()
-      .populate("buyer seller product");
+      .populate({ path: "product", model: productModel })
+      .populate({ path: "buyer", model: userModel, select: "-password" })
+      .populate({ path: "seller", model: userModel, select: "-password" });
 
     res.json({ transactions });
 

@@ -15,5 +15,5 @@ ProductRoutes.patch('/product/:id',authMiddleware,updateProduct)
 
 ProductRoutes.delete('/product/:id',authMiddleware,deleteProduct)
 
-ProductRoutes.post("/:productId/rate", authMiddleware, addRating);
+ProductRoutes.post("/product/:productId/rate", authMiddleware, addRating);
 
