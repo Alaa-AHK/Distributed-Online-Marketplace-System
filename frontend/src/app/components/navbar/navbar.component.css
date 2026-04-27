@@ -1,0 +1,36 @@
+.header {
+  background-color: #14111f;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 50px;
+}
+.logo {
+  width: 100px;
+}
+
+.header-links a {
+  color: white;
+  padding: 5px 15px;
+  text-decoration: none;
+  border-radius: 15px;
+}
+
+.header-links a:hover {
+  background-color: #352f47;
+}
+.active {
+  font-weight: bold;
+  text-decoration: underline;
+}
+.btn {
+  background-color: #a8729a;
+  border-radius: 15px;
+  padding: 5px 15px;
+  color: #ffffff;
+  border: none;
+}
+
+.btn:hover {
+  background-color:  #96748d;
+}
