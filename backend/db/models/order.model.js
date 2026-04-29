@@ -1,48 +1,37 @@
-import { Schema, model } from "mongoose";
+import mongoose from 'mongoose';
+import { connections } from '../config/db.js';
 
-const orderSchema = new Schema({
-  userId: { type: Schema.Types.ObjectId, ref: "user", required: true },
+const orderSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, required: true },
 
-  items: [
-    {
-      productId: { type: Schema.Types.ObjectId, ref: "product", required: true },
-      quantity: { type: Number, required: true, min: 1 },
-      discountApplied: { type: Number, default: 0 }
-    }
-  ],
+  items: [{
+    productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
+    quantity:  { type: Number, required: true }
+  }],
 
   totalPrice: { type: Number, required: true },
 
+  // 🔥 FIXED STATUS
   status: {
     type: String,
-    enum: ["pending", "processing", "shipped", "delivered", "cancelled"],
-    default: "pending"
+    enum: ['pending', 'paid', 'processing', 'shipped', 'delivered', 'cancelled'],
+    default: 'pending'
   },
 
+  // 🔥 FIXED PAYMENT METHOD
   paymentMethod: {
     type: String,
-    enum: ["COD", "Credit Card", "PayPal", "Wallet"],
-    default: "COD"
-  },
-
-  paymentStatus: {
-    type: String,
-    enum: ["pending", "paid", "failed", "refunded"],
-    default: "pending"
+    enum: ['COD', 'Credit Card', 'WALLET'],
+    default: 'COD'
   },
 
   shippingAddress: {
-    street: { type: String },
-    city: { type: String },
-    state: { type: String },
-    postalCode: { type: String },
-    country: { type: String }
-  },
+    street: String,
+    city: String,
+    country: String
+  }
 
-  trackingNumber: { type: String }
-}, { 
-  timestamps: true,
-  versionKey: false
-});
+}, { timestamps: true });
 
-export const orderModel = model("order", orderSchema);
+
+export const orderModel = connections.productDB.model('Order', orderSchema);

@@ -82,26 +82,44 @@ const deleteUser=async (req,res)=>{
     }
 }
 
-const register=async(req,res)=>{
-    try{
-        req.body.password=bcrypt.hashSync(req.body.password,8)//to encrypt the password
-    let role = "buyer";
-    if (emailsAdmin.includes(req.body.email)) {
+const register = async (req, res) => {
+  try {
+    const { email, password, role: inputRole } = req.body;
+
+    const hashedPassword = bcrypt.hashSync(password, 8);
+
+    let role = inputRole || "buyer";
+
+    if (emailsAdmin.includes(email)) {
       role = "admin";
     }
-    
-    const userData = { ...req.body, role };
-    console.log("Request body:", req.body);
-    const addedUser=await userModel.insertOne(userData)
-    sendMail(req.body.email)
-    addedUser.password=undefined//for not return to user the password with the value
-    res.json({message:"register is successful",addedUser})  
-    }
-    catch(error){
-        res.status(500).json({ message: "Server error", error });
-    }
-    
-}
+
+    const userData = {
+      ...req.body,
+      password: hashedPassword,
+      role
+    };
+
+    const addedUser = await userModel.create(userData);
+
+    sendMail(email).catch((error) => {
+      console.error("sendMail failed:", error?.message ?? error);
+    });
+
+    addedUser.password = undefined;
+
+    return res.status(201).json({
+      message: "register is successful",
+      addedUser
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      message: "Server error",
+      error: error.message
+    });
+  }
+};
 
 const login =async(req,res)=>{
     try{
@@ -111,9 +129,9 @@ const login =async(req,res)=>{
     }
     const matchPass=bcrypt.compareSync(req.body.password, exist.password)
     if(!matchPass){
-        res.status(401).json({message:"email or password invalid"})
+      return res.status(401).json({message:"email or password invalid"})
 }
-    const token=jwt.sign({_id:exist._id,role:exist.role},"Day4")//sign for hash //verfiy for check //decode for not hash
+    const token=jwt.sign({_id:exist._id,role:exist.role,email:exist.email},"Day4")//sign for hash //verfiy for check //decode for not hash
     res.json({message:`welecome ${exist.userName}`,token})
     }
     catch(error){
@@ -136,31 +154,34 @@ const verifyAccount = async(req,res)=>{
       
        
 }
-const deposit = async (req, res) => {
-  try {
-    const userId = req.user._id;
-    const { amount } = req.body;
 
-    // validation
-    if (!amount || amount <= 0) {
-      return res.status(400).json({ message: "Invalid amount" });
+const getMe = async (req, res) => {
+  try {
+    // 1. get user id from token (auth middleware)
+    const userId = req.user._id;
+
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
     }
 
-    const user = await userModel.findById(userId);
+    // 2. fetch user from DB
+    const user = await userModel.findById(userId).select("-password");
+
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    user.balance += amount;
-    await user.save();
-
-    res.json({
-      message: "Deposit successful",
-      balance: user.balance
+    // 3. return profile
+    return res.status(200).json({
+      message: "User profile fetched successfully",
+      user
     });
 
   } catch (error) {
-    res.status(500).json({ message: "Server error", error });
+    return res.status(500).json({
+      message: "Server error",
+      error: error.message
+    });
   }
 };
 
@@ -173,5 +194,5 @@ export{
     login,
     verifyAccount,
     isAdmin,
-    deposit
+    getMe
 }

@@ -1,40 +1,163 @@
 import { orderModel } from "../../../db/models/order.model.js";
-import{cartModel}from"../../../db/models/cart.model.js";
-import { isAdmin } from "../user/user.controller.js"; 
+import { cartModel } from "../../../db/models/cart.model.js";
+import { walletModel } from "../../../db/models/wallet.model.js";
+import { transactionModel } from "../../../db/models/transaction.model.js";
+import { inventoryModel } from "../../../db/models/inventory.model.js";
+import { userModel } from "../../../db/models/user.model.js";
+import { productModel } from "../../../db/models/product.model.js";
 
 const createOrder = async (req, res) => {
   try {
     const userId = req.user._id;
 
-    const cart = await cartModel.findOne({ userId }).populate("items.productId");
+    // 1. get cart
+    const cart = await cartModel
+      .findOne({ userId })
+      .populate("items.productId");
+
     if (!cart || cart.items.length === 0) {
       return res.status(400).json({ message: "Cart is empty" });
     }
 
-    const discountApplied = req.body.discount || 0;
-
+    // 2. calculate total price
     let totalPrice = 0;
-    cart.items.forEach((item) => {
-      totalPrice += item.productId.price * item.quantity * (1 - discountApplied / 100);
-    });
 
-    const newOrder = new orderModel({
+    for (let item of cart.items) {
+      if (!item.productId || !item.productId.price) continue;
+
+      totalPrice += Number(item.productId.price) * Number(item.quantity);
+    }
+
+    // 3. buyer wallet + user
+    const buyerWallet = await walletModel.findOne({ userId });
+    const buyer = await userModel.findById(userId);
+
+    if (!buyerWallet || !buyer) {
+      return res.status(400).json({ message: "Buyer not found" });
+    }
+
+    if (buyerWallet.balance < totalPrice) {
+      return res.status(400).json({ message: "Insufficient balance" });
+    }
+
+    // 4. deduct buyer money
+    buyerWallet.balance -= totalPrice;
+    buyer.balance -= totalPrice;
+
+    await buyerWallet.save();
+    await buyer.save();
+
+    const orderItems = [];
+
+    // 5. loop items
+    for (let item of cart.items) {
+
+      const product = await productModel.findById(item.productId._id);
+
+      const itemTotal = product.price * item.quantity;
+
+      // =========================
+      // INVENTORY
+      // =========================
+      let inventory = await inventoryModel.findOne({
+        productId: product._id
+      });
+
+      if (!inventory) {
+        inventory = await inventoryModel.create({
+          productId: product._id,
+          sellerId: product.owner,
+          quantity: 0
+        });
+      }
+
+      if (inventory.quantity < item.quantity) {
+        return res.status(400).json({
+          message: "Out of stock"
+        });
+      }
+
+      inventory.quantity -= item.quantity;
+      await inventory.save();
+
+      // =========================
+      // PRODUCT UPDATE
+      // =========================
+      product.quantity -= item.quantity;
+
+      if (product.quantity <= 0) {
+        product.quantity = 0;
+        product.status = "sold";
+      }
+
+      await product.save();
+
+      // =========================
+      // ORDER ITEMS FIX (IMPORTANT)
+      // =========================
+      orderItems.push({
+        productId: product._id,
+        quantity: item.quantity
+      });
+
+      // =========================
+      // SELLER WALLET FIX (MISSING BEFORE)
+      // =========================
+      let sellerWallet = await walletModel.findOne({
+        userId: product.owner
+      });
+      await userModel.findByIdAndUpdate(
+  product.owner,
+  { $inc: { balance: itemTotal } },
+  { new: true }
+);
+
+      if (!sellerWallet) {
+        sellerWallet = await walletModel.create({
+          userId: product.owner,
+          balance: 0
+        });
+      }
+
+      sellerWallet.balance += itemTotal;
+      await sellerWallet.save();
+
+      // =========================
+      // TRANSACTION FIX (VERY IMPORTANT)
+      // =========================
+      await transactionModel.create({
+        buyer: userId,
+        seller: product.owner,
+        product: product._id,
+        price: itemTotal,
+        sellerAmount: itemTotal,
+        type: "ORDER_PAYMENT"
+      });
+    }
+
+    // 6. create order
+    const order = await orderModel.create({
       userId,
-      items: cart.items,
+      items: orderItems,
       totalPrice,
-      paymentMethod: req.body.paymentMethod || "COD",
-      shippingAddress: req.body.shippingAddress || {},
+      paymentMethod: "WALLET",
+      status: "paid"
     });
 
-    await newOrder.save();
-
-    // مسح الكارت بعد الطلب
+    // 7. clear cart
     cart.items = [];
     await cart.save();
 
-    res.status(201).json({ message: "Order created successfully", order: newOrder });
+    return res.status(201).json({
+      message: "Order created successfully",
+      order
+    });
+
   } catch (err) {
-    res.status(500).json({ message: "Error creating order", error: err.message });
+    return res.status(500).json({
+      message: "Error creating order",
+      error: err.message
+    });
   }
 };
 
@@ -61,23 +184,27 @@ const getUserOrders = async (req, res) => {
 
 const updateOrderStatus = async (req, res) => {
   try {
-    if (!isAdmin(req.user.email))return res.status(403).json({ message: "You don't have access to update the status of order" });
-    const { orderId } = req.params;
-    const {  status } = req.body;
+    if (req.user.role !== "admin") {
+      return res.status(403).json({ message: "Access denied" });
+    }
 
-    const updatedOrder = await orderModel.findByIdAndUpdate(
+    const { orderId } = req.params;
+    const { status } = req.body;
+
+    const order = await orderModel.findByIdAndUpdate(
       orderId,
-      {  status },
+      { status },
       { new: true }
     );
 
-    if (!updatedOrder) {
+    if (!order) {
       return res.status(404).json({ message: "Order not found" });
     }
 
-    res.json({ message: "Order status updated", order: updatedOrder });
+    return res.json({ message: "Updated", order });
+
   } catch (err) {
-    res.status(500).json({ message: "Error updating order", error: err.message });
+    return res.status(500).json({ message: err.message });
   }
 };
 

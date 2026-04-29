@@ -1,21 +1,25 @@
 import express from "express";
-import { dbConnetion } from "./db/dbConnection.js";
+import { connectDatabases } from "./db/config/db.js";
 import { UserRoutes } from "./src/modules/user/user.routes.js";
 import { ProductRoutes } from "./src/modules/product/product.routes.js";
 import { CartRoutes } from "./src/modules/cart/cart.routes.js";
 import { OrderRoutes } from "./src/modules/order/order.routes.js";
 import cors from 'cors'
 import TransactionRoutes from './src/modules/transaction/transaction.routes.js';
+import{walletRoutes}from "./src/modules/wallet/wallet.routes.js";
+import { ReportRoutes} from "./src/modules/report/report.routes.js";
+import {ChatRoutes} from "./src/modules/chat/chat.routes.js";
+
 
 
 const app=express()
 
-dbConnetion
+app.use(express.json())
 
 let x=true
 const isAuth=(req,res,next)=>{
 if(x)next()
-    else res.json({message:"not auth"})
+  else res.json({message:"not auth"})
 }
 
 
@@ -29,6 +33,13 @@ app.use(ProductRoutes)
 app.use(CartRoutes)
 app.use(OrderRoutes)
 app.use(TransactionRoutes)
+app.use(walletRoutes)
+app.use(ReportRoutes)
+app.use(ChatRoutes)
+
+app.get('/health',(req,res)=>{
+  res.json({status:"ok"})
+})
 
 app.get('/',isAuth,(req,res)=>{
     res.json({message:"done"})
@@ -36,6 +47,10 @@ app.get('/',isAuth,(req,res)=>{
 
 
 
-app.listen(3000,()=>{
-    console.log("server running")
-})
+// app.listen(3000,()=>{
+//     console.log("server running")
+// })
+connectDatabases().then(() => {
+  app.listen(3000, () => console.log(' Server running on port 3000'));
+});
+

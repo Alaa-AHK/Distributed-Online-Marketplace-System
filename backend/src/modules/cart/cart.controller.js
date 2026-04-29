@@ -1,34 +1,69 @@
 import { cartModel } from "../../../db/models/cart.model.js";
+import { inventoryModel } from "../../../db/models/inventory.model.js";
 
-//for admin and Customer to show the cart of them 
 const addToCart = async (req, res) => {
   try {
     const { productId, quantity } = req.body;
     const userId = req.user._id;
 
+    // 1. check inventory
+    const inventory = await inventoryModel.findOne({ productId });
+
+    if (!inventory) {
+      return res.status(404).json({ message: "Product not found in inventory" });
+    }
+
+    if (inventory.quantity < quantity) {
+      return res.status(400).json({
+        message: `Only ${inventory.quantity} items available in stock`
+      });
+    }
+
+    // 2. get cart
     let cart = await cartModel.findOne({ userId });
 
+    // 3. create or update cart
     if (!cart) {
       cart = new cartModel({
         userId,
         items: [{ productId, quantity }]
       });
     } else {
-      const itemIndex = cart.items.findIndex(item => item.productId == productId);
+      const itemIndex = cart.items.findIndex(
+        item => item.productId.toString() === productId
+      );
+
       if (itemIndex > -1) {
-        cart.items[itemIndex].quantity += quantity;
+        const newQuantity = cart.items[itemIndex].quantity + quantity;
+
+        // re-check stock for updated quantity
+        if (newQuantity > inventory.quantity) {
+          return res.status(400).json({
+            message: `Not enough stock. Available: ${inventory.quantity}`
+          });
+        }
+
+        cart.items[itemIndex].quantity = newQuantity;
       } else {
         cart.items.push({ productId, quantity });
       }
     }
+
     await cart.save();
-    res.status(201).json({ message: "Product added to cart", cart });
+
+    return res.status(201).json({
+      message: "Product added to cart",
+      cart
+    });
 
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error adding product to cart", error });
+    return res.status(500).json({
+      message: "Error adding product to cart",
+      error: error.message
+    });
   }
 };
+
 
 //for show the cart 
 const getCart=async(req,res)=>{

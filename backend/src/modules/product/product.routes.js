@@ -5,7 +5,7 @@ import express,{ Router } from "express"
 export const ProductRoutes=Router()
 ProductRoutes.use(express.json())
 
-ProductRoutes.get('/product',getProduct)
+ProductRoutes.get('/products',getProduct)
 
 ProductRoutes.get('/product/:id', getSingleProduct)
 
@@ -15,5 +15,5 @@ ProductRoutes.patch('/product/:id',authMiddleware,updateProduct)
 
 ProductRoutes.delete('/product/:id',authMiddleware,deleteProduct)
 
-ProductRoutes.post("/:productId/rate", authMiddleware, addRating);
+ProductRoutes.post("/product/:productId/rate", authMiddleware, addRating);
 
