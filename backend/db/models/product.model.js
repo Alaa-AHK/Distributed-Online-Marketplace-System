@@ -6,9 +6,10 @@ const productSchema = new mongoose.Schema({
   description: { type: String },
   brand:       { type: String },
   price:       { type: Number, required: true },
-  owner:       { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // ← controller uses "owner"
+  owner:       { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, 
   status:      { type: String, enum: ['available', 'sold'], default: 'available' },
   ratings:     [{ userId: mongoose.Schema.Types.ObjectId, rating: Number, comment: String }],
+  quantity:{type:Number,require:true}
 }, { timestamps: true });
 
 export const productModel = connections.productDB.model('Product', productSchema);

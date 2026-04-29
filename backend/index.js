@@ -6,6 +6,10 @@ import { CartRoutes } from "./src/modules/cart/cart.routes.js";
 import { OrderRoutes } from "./src/modules/order/order.routes.js";
 import cors from 'cors'
 import TransactionRoutes from './src/modules/transaction/transaction.routes.js';
+import{walletRoutes}from "./src/modules/wallet/wallet.routes.js";
+import { ReportRoutes} from "./src/modules/report/report.routes.js";
+import {ChatRoutes} from "./src/modules/chat/chat.routes.js";
+
 
 
 const app=express()
@@ -29,6 +33,9 @@ app.use(ProductRoutes)
 app.use(CartRoutes)
 app.use(OrderRoutes)
 app.use(TransactionRoutes)
+app.use(walletRoutes)
+app.use(ReportRoutes)
+app.use(ChatRoutes)
 
 app.get('/health',(req,res)=>{
   res.json({status:"ok"})

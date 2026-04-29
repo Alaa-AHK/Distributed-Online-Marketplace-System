@@ -5,7 +5,7 @@ import express,{ Router } from "express"
 export const ProductRoutes=Router()
 ProductRoutes.use(express.json())
 
-ProductRoutes.get('/product',getProduct)
+ProductRoutes.get('/products',getProduct)
 
 ProductRoutes.get('/product/:id', getSingleProduct)
 
