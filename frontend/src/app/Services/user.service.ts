@@ -11,7 +11,6 @@ export class UserService {
 
   constructor(private _HttpClient: HttpClient) {}
 
-  // ✅ Get profile (correct endpoint = /profile)
   getMe(): Observable<any> {
     const token = localStorage.getItem("Authorization") || '';
 
@@ -23,7 +22,6 @@ export class UserService {
     return this._HttpClient.get(this.baseUrl, { headers });
   }
 
-  // (اختياري - غالبًا مش هتستخدميه هنا)
   addAdmin(data: any): Observable<any> {
     const token = localStorage.getItem("Authorization") || '';
 

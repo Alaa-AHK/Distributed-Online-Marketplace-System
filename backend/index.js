@@ -9,13 +9,16 @@ import TransactionRoutes from './src/modules/transaction/transaction.routes.js';
 import{walletRoutes}from "./src/modules/wallet/wallet.routes.js";
 import { ReportRoutes} from "./src/modules/report/report.routes.js";
 import {ChatRoutes} from "./src/modules/chat/chat.routes.js";
+import path from "path";
+
+
 
 
 
 const app=express()
 
 app.use(express.json())
-
+app.use('/images', express.static(path.join(process.cwd(), 'src/utilities/images')));
 let x=true
 const isAuth=(req,res,next)=>{
 if(x)next()
@@ -36,6 +39,7 @@ app.use(TransactionRoutes)
 app.use(walletRoutes)
 app.use(ReportRoutes)
 app.use(ChatRoutes)
+app.use('/images', express.static('src/utilities/images'));
 
 app.get('/health',(req,res)=>{
   res.json({status:"ok"})

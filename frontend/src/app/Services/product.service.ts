@@ -11,20 +11,25 @@ export class ProductService {
 
   constructor(private _HttpClient: HttpClient) {}
 
-  // ✅ Get all products
+  // Get all products
   getproducts(): Observable<any> {
     return this._HttpClient.get(`${this.baseUrl}/products`);
   }
 
-  // ✅ Create product
-  postProduct(data: any): Observable<any> {
-    const token = localStorage.getItem("Authorization") || '';
-    const headers = new HttpHeaders().set('Authorization', token);
+  // Create product
+postProduct(data: any): Observable<any> {
+  const token = localStorage.getItem("Authorization") || '';
+  const headers = new HttpHeaders().set('Authorization', token);
 
-    return this._HttpClient.post(`${this.baseUrl}/product`, data, { headers });
-  }
+  return this._HttpClient.post(
+    `${this.baseUrl}/product`,
+    data,
+    { headers }
+  );
+}
 
-  // ✅ Delete product
+
+  // Delete product
   deleteProduct(id: string): Observable<any> {
     const token = localStorage.getItem("Authorization") || '';
     const headers = new HttpHeaders().set('Authorization', token);
@@ -32,20 +37,18 @@ export class ProductService {
     return this._HttpClient.delete(`${this.baseUrl}/product/${id}`, { headers });
   }
 
-  // ✅ Update product
+  // Update product
   updateProduct(id: string, data: any): Observable<any> {
     const token = localStorage.getItem("Authorization") || '';
     const headers = new HttpHeaders().set('Authorization', token);
 
     return this._HttpClient.patch(`${this.baseUrl}/product/${id}`, data, { headers });
   }
-
-  // 🔥 أهم واحدة (كانت غلط عندك)
   getSingleProduct(id: string): Observable<any> {
     return this._HttpClient.get(`${this.baseUrl}/product/${id}`);
   }
 
-  // ✅ Rate product
+  // Rate product
   rateProduct(productId: string, ratingData: any): Observable<any> {
     const token = localStorage.getItem("Authorization") || '';
     const headers = new HttpHeaders().set('Authorization', token);

@@ -1,10 +1,11 @@
-@if (userRole === 'admin') {
+@if (userRole === 'admin'||userRole==='buyer') {
   <div class="mb-3 text-center" style="margin-top: 10px;">
     <button class="btn btn-success" (click)="showCreateForm = !showCreateForm">
       <i class="bi bi-plus-circle-fill"></i> Create Product
     </button>
   </div>
-
+}
+@if (userRole === 'admin') {
   <div class="mb-3 text-center" style="margin-top: 10px;">
     <button class="btn btn-success" routerLink="/addAdmin">
       <i class="bi bi-plus-circle-fill"></i> Add Admin
@@ -33,8 +34,13 @@
       </div>
 
       <div class="mb-2">
-        <input type="text" placeholder="Image URL" formControlName="image" class="form-control" />
-      </div>
+  <label class="form-label">Upload Product Image</label>
+
+  <input type="file"
+         class="form-control"
+         accept="image/*"
+         (change)="onFileSelected($event)">
+</div>
 
       <button type="submit" class="btn btn-primary" [disabled]="!productCreate.valid">
         <i class="bi bi-save-fill"></i> Save Product
@@ -54,13 +60,16 @@
 
         <div class="card h-100 w-75" style="border-radius: 30px;">
 
-          <img class='mx-auto img-thumbnail'
-               [src]="product.image || 'images/trending-01.jpg'"
-               width="200" height="100"/>
+         <img
+  [src]="imageBaseUrl + product.image"
+  class="mx-auto img-thumbnail"
+  width="200"
+  height="100"
+/>
 
           <div class="card-body text-center">
 
-            <!-- ✅ بدل name -->
+
             <h5 class="card-title font-weight-bold">
               {{ product.title }}
             </h5>
@@ -69,12 +78,10 @@
               ${{ product.price }}
             </p>
 
-            <!-- 🔥 عرض stock -->
             <p>
               Stock: {{ product.stock }}
             </p>
 
-            <!-- 🔴 لو خلص -->
             @if (product.stock === 0) {
               <p style="color:red;">Out of stock</p>
             }
@@ -86,7 +93,6 @@
 
             <br />
 
-            <!-- 🔥 disable لو مفيش stock -->
             <a href="#"
                class="btn cart px-auto mt-2"
                (click)="addToCart(product, $event)"
@@ -95,7 +101,7 @@
               Add to Cart
             </a>
 
-            @if (userRole === 'admin') {
+            @if (userRole === 'admin'||userRole==='buyer') {
               <div class="mt-2">
 
                 <button (click)="deleteProduct(product._id)"
