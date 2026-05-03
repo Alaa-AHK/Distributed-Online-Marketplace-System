@@ -3,25 +3,53 @@ import { inventoryModel } from "../../../db/models/inventory.model.js";
 
 const getProduct = async (req, res) => {
   try {
-    const products = await productModel.find().populate("owner", "userName email");
+
+    // ✅ هات المنتجات بدون populate الأول (أكثر أمان)
+    const products = await productModel.find();
 
     const result = await Promise.all(
-      products.map(async (p) => {
-        const inv = await inventoryModel.findOne({ productId: p._id });
+      products.map(async (product) => {
+
+        let stock = 0;
+
+        try {
+          const inventory = await inventoryModel.findOne({
+            productId: product._id
+          });
+
+          stock = inventory ? inventory.quantity : 0;
+        } catch (invError) {
+          console.log("Inventory error:", invError.message);
+        }
 
         return {
-          ...p.toObject(),
-          stock: inv?.quantity || 0
+          _id: product._id,
+          title: product.title,
+          description: product.description,
+          price: product.price,
+          image: product.image,
+          owner: product.owner,
+          stock
         };
       })
     );
 
-    res.json({ products: result });
+    return res.status(200).json({
+      message: "Products fetched successfully",
+      products: result
+    });
 
   } catch (error) {
-    res.status(500).json({ message: "Server error", error });
+
+    console.log("GET PRODUCTS FAILED:", error);
+
+    return res.status(500).json({
+      message: "Server error in getProducts",
+      error: error.message
+    });
   }
 };
+
 
 
 
@@ -45,21 +73,49 @@ const getSingleProduct = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const product = await productModel.findById(id).populate("owner");
+    // ✅ fetch product safely
+    const product = await productModel.findById(id);
 
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
 
-    const inventory = await inventoryModel.findOne({ productId: id });
+    // ✅ safe inventory handling
+    let stock = 0;
 
-    res.json({
-      product,
-      stock: inventory?.quantity || 0
+    try {
+      const inventory = await inventoryModel.findOne({
+        productId: id
+      });
+
+      stock = inventory ? inventory.quantity : 0;
+    } catch (invError) {
+      console.log("Inventory error:", invError.message);
+    }
+
+    // ✅ response cleaned for frontend
+    return res.status(200).json({
+      message: "Product fetched successfully",
+      product: {
+        _id: product._id,
+        title: product.title,
+        description: product.description,
+        price: product.price,
+        image: product.image,
+        owner: product.owner,
+        status: product.status,
+        stock
+      }
     });
 
   } catch (error) {
-    res.status(500).json({ message: "Error fetching product", error });
+
+    console.log("GET SINGLE PRODUCT ERROR:", error);
+
+    return res.status(500).json({
+      message: "Error fetching product",
+      error: error.message
+    });
   }
 };
 
