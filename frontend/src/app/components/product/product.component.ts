@@ -16,6 +16,7 @@ export class ProductComponent implements OnInit {
 
   products: any[] = [];
   showCreateForm = false;
+  userRole: string | null = null;
 
   constructor(
     private _ProductService: ProductService,
@@ -33,8 +34,9 @@ export class ProductComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.getProducts();
-  }
+  this.userRole = localStorage.getItem('role');
+  this.getProducts();
+}
 
   getProducts() {
     this._ProductService.getproducts().subscribe({
@@ -70,7 +72,9 @@ export class ProductComponent implements OnInit {
       error: (err) => console.log(err)
     });
   }
-
+goToUpdatePage(id: string) {
+  this.router.navigate(['/update-product', id]);
+}
   addToCart(product: any, event: Event) {
     event.preventDefault();
 

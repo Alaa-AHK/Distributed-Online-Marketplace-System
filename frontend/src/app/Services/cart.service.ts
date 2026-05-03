@@ -31,12 +31,14 @@ getCheckoutItems(): any[] {
     const headers = new HttpHeaders().set('Authorization', token);
     return this._HttpClient.post('http://localhost:3000/cart',data,{headers:headers})
   }
-deleteItemInCart(productId: string | number): Observable<any> {
-  return this._HttpClient.delete(`http://localhost:3000/cart/${productId}`,{
-  headers: new HttpHeaders({
-    Authorization: `Bearer ${localStorage.getItem('token')}`
-  })
-});
+deleteItemInCart(productId: string): Observable<any> {
+  const token = localStorage.getItem("Authorization") || '';
+    const headers = new HttpHeaders().set('Authorization', token);
+
+  return this._HttpClient.delete(
+    `http://localhost:3000/cart/${productId}`,
+    { headers }
+  );
 }
 
 
@@ -46,7 +48,7 @@ updateCartQuantity(productId: string, quantity: number): Observable<any> {
 
   return this._HttpClient.put(
     `http://localhost:3000/cart/${productId}`,
-    { quantity }, 
+    { quantity },
     { headers }
   );
 }
