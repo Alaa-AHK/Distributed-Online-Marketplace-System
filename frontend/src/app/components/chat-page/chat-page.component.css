@@ -1,0 +1,279 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.chat-container {
+  display: flex;
+  height: calc(100vh - 70px);
+  background: #1a1a2e;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* Left Panel */
+.members-panel {
+  width: 300px;
+  background: #16213e;
+  border-right: 1px solid #0f3460;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.members-header {
+  padding: 24px 20px;
+  border-bottom: 1px solid #0f3460;
+}
+
+.members-header h3 {
+  color: #e2e8f0;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.members-list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.members-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.members-list::-webkit-scrollbar-thumb {
+  background: #0f3460;
+  border-radius: 4px;
+}
+
+.member-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 20px;
+  cursor: pointer;
+  transition: background 0.15s;
+  border-bottom: 1px solid #0f3460;
+}
+
+.member-item:hover {
+  background: #0f3460;
+}
+
+.member-item.active {
+  background: #0f3460;
+  border-left: 3px solid #e94560;
+}
+
+.avatar {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #e94560, #0f3460);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.member-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.member-name {
+  color: #e2e8f0;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.member-preview {
+  color: #64748b;
+  font-size: 12px;
+}
+
+.no-users {
+  color: #64748b;
+  text-align: center;
+  padding: 30px;
+  font-size: 14px;
+}
+
+/* Right Panel */
+.chat-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #1a1a2e;
+  overflow: hidden;
+}
+
+.no-chat-selected {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  gap: 16px;
+}
+
+.no-chat-icon {
+  font-size: 64px;
+  opacity: 0.4;
+}
+
+.no-chat-selected p {
+  font-size: 16px;
+  color: #64748b;
+}
+
+.chat-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 24px;
+  background: #16213e;
+  border-bottom: 1px solid #0f3460;
+}
+
+.chat-header h4 {
+  color: #e2e8f0;
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.online-status {
+  color: #22c55e;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.messages-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.messages-area::-webkit-scrollbar {
+  width: 4px;
+}
+
+.messages-area::-webkit-scrollbar-thumb {
+  background: #0f3460;
+  border-radius: 4px;
+}
+
+.no-messages {
+  color: #64748b;
+  text-align: center;
+  margin-top: 60px;
+  font-size: 14px;
+}
+
+.message {
+  display: flex;
+  max-width: 60%;
+}
+
+.message.sent {
+  align-self: flex-end;
+}
+
+.message.received {
+  align-self: flex-start;
+}
+
+.message-bubble {
+  padding: 10px 16px;
+  border-radius: 18px;
+  font-size: 14px;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.message.sent .message-bubble {
+  background: #e94560;
+  color: white;
+  border-bottom-right-radius: 4px;
+}
+
+.message.received .message-bubble {
+  background: #16213e;
+  color: #e2e8f0;
+  border-bottom-left-radius: 4px;
+  border: 1px solid #0f3460;
+}
+
+.message-bubble p {
+  margin: 0 0 4px 0;
+}
+
+.message-bubble small {
+  font-size: 11px;
+  opacity: 0.6;
+  display: block;
+  text-align: right;
+}
+
+.message.received .message-bubble small {
+  text-align: left;
+}
+
+/* Input Area */
+.message-input-area {
+  display: flex;
+  align-items: center;
+  padding: 14px 20px;
+  gap: 12px;
+  background: #16213e;
+  border-top: 1px solid #0f3460;
+}
+
+.message-input-area input {
+  flex: 1;
+  background: #0f3460;
+  border: none;
+  border-radius: 24px;
+  padding: 12px 20px;
+  color: #e2e8f0;
+  font-size: 14px;
+  outline: none;
+  transition: background 0.2s;
+}
+
+.message-input-area input:focus {
+  background: #1a1a2e;
+  border: 1px solid #e94560;
+}
+
+.message-input-area input::placeholder {
+  color: #64748b;
+}
+
+.message-input-area button {
+  background: #e94560;
+  border: none;
+  border-radius: 24px;
+  padding: 12px 28px;
+  color: white;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  letter-spacing: 0.5px;
+}
+
+.message-input-area button:hover {
+  background: #c73652;
+  transform: scale(1.02);
+}

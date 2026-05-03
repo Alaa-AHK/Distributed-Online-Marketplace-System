@@ -1,0 +1,65 @@
+<div class="chat-container">
+  <!-- Left Panel: Users List -->
+  <div class="members-panel">
+    <div class="members-header">
+      <h3>Messages</h3>
+    </div>
+    <div class="members-list">
+      <div *ngFor="let user of users"
+           class="member-item"
+           [class.active]="selectedUser?._id === user._id"
+           (click)="selectUser(user)">
+        <div class="avatar">{{ getInitials(user.userName) }}</div>
+        <div class="member-info">
+          <span class="member-name">{{ user.userName }}</span>
+          <span class="member-preview">Click to chat</span>
+        </div>
+      </div>
+
+      <div *ngIf="users.length === 0" class="no-users">
+        No users found
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Panel: Chat Window -->
+  <div class="chat-panel">
+    <!-- No user selected -->
+    <div *ngIf="!selectedUser" class="no-chat-selected">
+      <div class="no-chat-icon">💬</div>
+      <p>Select a user to start chatting</p>
+    </div>
+
+    <!-- Chat active -->
+    <ng-container *ngIf="selectedUser">
+      <div class="chat-header">
+        <div class="avatar">{{ getInitials(selectedUser.userName) }}</div>
+        <div>
+          <h4>{{ selectedUser.userName }}</h4>
+          <span class="online-status">online</span>
+        </div>
+      </div>
+
+      <div class="messages-area">
+        <div *ngIf="messages.length === 0" class="no-messages">
+          No messages yet. Say hello! 👋
+        </div>
+
+        <div *ngFor="let msg of messages"
+             [class]="msg.senderId?.toString() === myId ? 'message sent' : 'message received'">
+          <div class="message-bubble">
+            <p>{{ msg.content }}</p>
+            <small>{{ msg.createdAt | date:'shortTime' }}</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="message-input-area">
+        <input [(ngModel)]="newMessage"
+               (keyup.enter)="send()"
+               placeholder="Message" />
+        <button (click)="send()">SEND</button>
+      </div>
+    </ng-container>
+  </div>
+</div>

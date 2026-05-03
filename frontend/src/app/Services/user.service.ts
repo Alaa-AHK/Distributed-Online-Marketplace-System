@@ -11,6 +11,7 @@ export class UserService {
 
   constructor(private _HttpClient: HttpClient) {}
 
+  // ✅ Get profile (correct endpoint = /profile)
   getMe(): Observable<any> {
     const token = localStorage.getItem("Authorization") || '';
 
@@ -22,6 +23,7 @@ export class UserService {
     return this._HttpClient.get(this.baseUrl, { headers });
   }
 
+  // (اختياري - غالبًا مش هتستخدميه هنا)
   addAdmin(data: any): Observable<any> {
     const token = localStorage.getItem("Authorization") || '';
 
@@ -46,6 +48,12 @@ updateUser(id: string, data: any): Observable<any> {
     data,
     { headers }
   );
+}
+ //updated
+ getAllUsers(): Observable<any> {
+  const token = localStorage.getItem("Authorization") || '';
+  const headers = new HttpHeaders().set('Authorization', token);
+  return this._HttpClient.get('http://localhost:3000/users/all', { headers });
 }
 
   deleteUser(id: string): Observable<any> {

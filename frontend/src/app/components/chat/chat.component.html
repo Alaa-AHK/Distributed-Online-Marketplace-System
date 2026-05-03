@@ -1,0 +1,30 @@
+<!-- Floating Chat Button -->
+<div class="chat-wrapper">
+  <button class="chat-toggle-btn" (click)="toggleChat()">
+    💬
+    <span *ngIf="messages.length > 0" class="badge">{{ messages.length }}</span>
+  </button>
+
+  <!-- Chat Window -->
+  <div class="chat-window" *ngIf="isOpen">
+    <div class="chat-header">
+      <span>{{ receiverName }}</span>
+      <button (click)="toggleChat()">✕</button>
+    </div>
+
+    <div class="chat-messages" #scrollMe>
+      <div *ngFor="let msg of messages"
+           [class]="msg.senderId === getMyId() ? 'msg mine' : 'msg theirs'">
+        <p>{{ msg.content }}</p>
+        <small>{{ msg.createdAt | date:'shortTime' }}</small>
+      </div>
+    </div>
+
+    <div class="chat-input">
+      <input [(ngModel)]="newMessage"
+             (keyup.enter)="send()"
+             placeholder="Type a message..." />
+      <button (click)="send()">Send</button>
+    </div>
+  </div>
+</div>

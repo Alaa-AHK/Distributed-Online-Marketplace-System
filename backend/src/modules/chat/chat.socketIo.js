@@ -1,4 +1,4 @@
-import { messageModel } from "./chat.model.js";
+import { messageModel } from "../../../db/models/chat.model.js";
 import { getRoomId } from "./room.util.js";
 
 export const chatSocket = (io) => {
@@ -7,17 +7,18 @@ export const chatSocket = (io) => {
 
     console.log("User connected:", socket.id);
 
-    // user joins chat with another user
-    socket.on("join-chat", ({ userA, userB }) => {
-      const roomId = getRoomId(userA, userB);
+    socket.on("join-chat", ({ userB }) => {
+      //const sender = socket.user.id;
+      const sender = socket.user._id;
+      const roomId = getRoomId(sender, userB);
       socket.join(roomId);
-
       console.log("Joined chat room:", roomId);
     });
 
-    // send message
     socket.on("send-message", async (data) => {
-      const { sender, receiver, msg } = data;
+      const { receiver, msg } = data;
+      //const sender = socket.user.id;
+      const sender = socket.user._id;
 
       const roomId = getRoomId(sender, receiver);
 
@@ -27,8 +28,11 @@ export const chatSocket = (io) => {
         content: msg
       });
 
-      // send to both users in room
       io.to(roomId).emit("receive-message", message);
+    });
+
+    socket.on("disconnect", () => {
+      console.log("User disconnected:", socket.id);
     });
 
   });

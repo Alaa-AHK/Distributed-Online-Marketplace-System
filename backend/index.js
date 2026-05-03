@@ -1,4 +1,7 @@
+import http from "http";
+import { Server } from "socket.io";
 import express from "express";
+import jwt from "jsonwebtoken";
 import { connectDatabases } from "./db/config/db.js";
 import { UserRoutes } from "./src/modules/user/user.routes.js";
 import { ProductRoutes } from "./src/modules/product/product.routes.js";
@@ -9,13 +12,34 @@ import TransactionRoutes from './src/modules/transaction/transaction.routes.js';
 import{walletRoutes}from "./src/modules/wallet/wallet.routes.js";
 import { ReportRoutes} from "./src/modules/report/report.routes.js";
 import {ChatRoutes} from "./src/modules/chat/chat.routes.js";
+import { chatSocket } from "./src/modules/chat/chat.socketio.js";
 import path from "path";
 
-
-
-
-
 const app=express()
+const server = http.createServer(app);
+
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:4200",
+    credentials: true
+  }
+});
+
+// JWT auth middleware for socket
+io.use((socket, next) => {
+  const token = socket.handshake.auth.token;
+  if (!token) return next(new Error("Unauthorized"));
+  try {
+    //socket.user = jwt.verify(token, process.env.JWT_SECRET);
+    socket.user = jwt.verify(token, "Day4");
+    next();
+  } catch {
+    next(new Error("Invalid token"));
+  }
+});
+
+// Attach chat socket handlers
+chatSocket(io);
 
 app.use(express.json())
 app.use('/images', express.static(path.join(process.cwd(), 'src/utilities/images')));
@@ -51,10 +75,7 @@ app.get('/',isAuth,(req,res)=>{
 
 
 
-// app.listen(3000,()=>{
-//     console.log("server running")
-// })
 connectDatabases().then(() => {
-  app.listen(3000, () => console.log(' Server running on port 3000'));
+  server.listen(3000, () => console.log(' Server running on port 3000'));
 });
 
