@@ -7,35 +7,47 @@ import { Observable } from 'rxjs';
 })
 export class ProductService {
 
-  constructor(private _HttpClient:HttpClient) { }
-  
-  getproducts():Observable<any>{
-    return this._HttpClient.get('http://localhost:3000/product');
+  baseUrl = "http://localhost:3000/products";
+
+  constructor(private _HttpClient: HttpClient) {}
+
+  getproducts(): Observable<any> {
+    return this._HttpClient.get(this.baseUrl);
   }
 
-  postProduct(data:any):Observable<any>{
-     const token = localStorage.getItem("Authorization") || '';
-    const headers = new HttpHeaders().set('Authorization', token);
-    return this._HttpClient.post('http://localhost:3000/product',data,{headers:headers});
-  }
-
-  deleteProduct(id: string | number): Observable<any> {
+  postProduct(data: any): Observable<any> {
     const token = localStorage.getItem("Authorization") || '';
     const headers = new HttpHeaders().set('Authorization', token);
-  return this._HttpClient.delete(`http://localhost:3000/product/${id}`,{headers:headers});
-}
 
-updateProduct(id: string | number, data: any): Observable<any> {
-  const token = localStorage.getItem("Authorization") || '';
+    return this._HttpClient.post(this.baseUrl, data, { headers });
+  }
+
+  deleteProduct(id: string): Observable<any> {
+    const token = localStorage.getItem("Authorization") || '';
     const headers = new HttpHeaders().set('Authorization', token);
-  return this._HttpClient.patch(`http://localhost:3000/product/${id}`, data,{headers:headers});
-}
-getSingleProduct(id: string) :Observable<any>{
-    return this._HttpClient.get(`http://localhost:3000/product/${id}`);
+
+    return this._HttpClient.delete(`${this.baseUrl}/${id}`, { headers });
   }
 
-rateProduct(productId: string, ratingData: any):Observable<any> {
-    return this._HttpClient.post(`http://localhost:3000/product/${productId}/rate`, ratingData);
+  updateProduct(id: string, data: any): Observable<any> {
+    const token = localStorage.getItem("Authorization") || '';
+    const headers = new HttpHeaders().set('Authorization', token);
+
+    return this._HttpClient.patch(`${this.baseUrl}/${id}`, data, { headers });
   }
 
+  getSingleProduct(id: string): Observable<any> {
+    return this._HttpClient.get(`${this.baseUrl}/${id}`);
+  }
+
+  rateProduct(productId: string, ratingData: any): Observable<any> {
+    const token = localStorage.getItem("Authorization") || '';
+    const headers = new HttpHeaders().set('Authorization', token);
+
+    return this._HttpClient.post(
+      `${this.baseUrl}/${productId}/rate`,
+      ratingData,
+      { headers }
+    );
+  }
 }

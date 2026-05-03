@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProductService } from '../../Services/product.service';
 import { CommonModule } from '@angular/common';
 import { CartService } from '../../Services/cart.service';
+import { Component, OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-product-details',
@@ -11,18 +11,50 @@ import { CartService } from '../../Services/cart.service';
   templateUrl: './product-details.component.html',
   styleUrl: './product-details.component.css'
 })
-export class ProductDetailsComponent implements OnInit{
-    product: any;
+export class ProductDetailsComponent implements OnInit {
+
+  product: any;
+
   constructor(
     private route: ActivatedRoute,
     private productService: ProductService,
-    private _CartService:CartService,
-    private router:Router
+    private _CartService: CartService,
+    private router: Router
   ) {}
-addToCart(product: any, event: Event) {
+
+  ngOnInit(): void {
+
+    const productId = this.route.snapshot.paramMap.get('id');
+
+    if (productId) {
+      this.getProduct(productId);
+    }
+  }
+
+  getProduct(id: string) {
+  this.productService.getSingleProduct(id).subscribe({
+    next: (res) => {
+      if (res && res.product) {
+        this.product = res.product;
+      }
+    },
+    error: (err) => {
+      console.error("Error loading product:", err);
+    }
+  });
+}
+
+  addToCart(product: any, event: Event) {
     event.preventDefault();
 
-    const token = localStorage.getItem('Authorization'); // Bearer token
+    if (!this.product) return;
+
+    if (this.product.stock === 0) {
+      alert("Out of stock");
+      return;
+    }
+
+    const token = localStorage.getItem('Authorization');
 
     if (!token) {
       alert('Please log in first!');
@@ -36,25 +68,11 @@ addToCart(product: any, event: Event) {
     };
 
     this._CartService.postCart(cartData).subscribe({
-      next: (res) => {
-        console.log('Cart updated:', res);
-        this.router.navigate(['/cart']); 
+      next: () => {
+        console.log("Added to cart");
+        this.router.navigate(['/cart']);
       },
-      error: (err) => {
-        console.error('Error adding to cart:', err);
-      }
+      error: (err) => console.log(err)
     });
   }
-
-
-  ngOnInit(): void {
-    const productId = this.route.snapshot.paramMap.get('id');
-    if (productId) {
-      this.productService.getSingleProduct(productId).subscribe({
-        next: (res) => {
-          this.product = res.product;
-        },
-        error: (err) => console.log(err)
-      });}}
-
 }
