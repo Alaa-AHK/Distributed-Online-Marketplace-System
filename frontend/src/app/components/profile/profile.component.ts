@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { UserService } from '../Services/user.service';
-import { WalletService } from '../Services/wallet.service';
+import { UserService } from '../../Services/user.service';
+import { WalletService } from '../../Services/wallet.service';
 
 @Component({
   selector: 'app-profile',

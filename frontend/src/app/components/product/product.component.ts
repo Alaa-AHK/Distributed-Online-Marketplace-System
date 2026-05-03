@@ -17,6 +17,8 @@ export class ProductComponent implements OnInit {
   products: any[] = [];
   showCreateForm = false;
   userRole: string | null = null;
+  selectedFile!: File;
+   imageBaseUrl = "http://localhost:3000";
 
   constructor(
     private _ProductService: ProductService,
@@ -34,47 +36,93 @@ export class ProductComponent implements OnInit {
   });
 
   ngOnInit(): void {
-  this.userRole = localStorage.getItem('role');
-  this.getProducts();
+    this.extractUserRole();
+    this.getProducts();
+  }
+
+  onFileSelected(event: any) {
+  this.selectedFile = event.target.files[0];
 }
 
-  getProducts() {
-    this._ProductService.getproducts().subscribe({
-      next: (res) => {
+  extractUserRole() {
+    const token = localStorage.getItem('Authorization');
+
+    if (!token) return;
+
+    try {
+      const pureToken = token.split(' ')[1];
+      const decoded: any = JSON.parse(atob(pureToken.split('.')[1]));
+
+      this.userRole = decoded.role;
+
+      console.log("User Role:", this.userRole);
+    } catch (e) {
+      console.log("Error decoding token", e);
+    }
+  }
+
+getProducts() {
+  this._ProductService.getproducts().subscribe({
+    next: (res: any) => {
+      console.log("Products API Response:", res);
+
+      if (res?.products && Array.isArray(res.products)) {
         this.products = res.products;
+      } else if (Array.isArray(res)) {
+        this.products = res;
+      } else {
+        this.products = [];
+      }
+
+      console.log("Mapped products:", this.products);
+    },
+    error: (err) => {
+      console.log("Error loading products:", err);
+      this.products = [];
+    }
+  });
+}
+
+sendData() {
+  if (this.productCreate.valid) {
+
+    const formData = new FormData();
+
+    formData.append('title', this.productCreate.value.title || '');
+    formData.append('description', this.productCreate.value.description || '');
+    formData.append('price', String(this.productCreate.value.price));
+    formData.append('quantity', String(this.productCreate.value.quantity));
+    formData.append('discount', String(this.productCreate.value.discount));
+
+    // الصورة
+    if (this.selectedFile) {
+      formData.append('image', this.selectedFile);
+    }
+
+    this._ProductService.postProduct(formData).subscribe({
+      next: (res) => {
+        console.log(res);
+        this.showCreateForm = false;
+        this.getProducts();
       },
       error: (err) => console.log(err)
     });
   }
-
-  sendData() {
-    if (this.productCreate.valid) {
-      this._ProductService.postProduct(this.productCreate.value).subscribe({
-        next: () => {
-          this.showCreateForm = false;
-          this.getProducts();
-        },
-        error: (err) => console.log(err)
-      });
-    }
-  }
+}
 
   deleteProduct(id: string) {
+    if (!confirm("Are you sure?")) return; // 🔥 safety
+
     this._ProductService.deleteProduct(id).subscribe({
       next: () => this.getProducts(),
       error: (err) => console.log(err)
     });
   }
 
-  updateProduct(id: string, data: any) {
-    this._ProductService.updateProduct(id, data).subscribe({
-      next: () => this.getProducts(),
-      error: (err) => console.log(err)
-    });
+  goToUpdatePage(id: string) {
+    this.router.navigate(['/update-product', id]);
   }
-goToUpdatePage(id: string) {
-  this.router.navigate(['/update-product', id]);
-}
+
   addToCart(product: any, event: Event) {
     event.preventDefault();
 
@@ -84,6 +132,7 @@ goToUpdatePage(id: string) {
     }
 
     const token = localStorage.getItem('Authorization');
+
     if (!token) {
       alert('Please login first');
       this.router.navigate(['/login']);

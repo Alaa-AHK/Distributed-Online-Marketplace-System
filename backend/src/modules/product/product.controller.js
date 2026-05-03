@@ -3,24 +3,14 @@ import { inventoryModel } from "../../../db/models/inventory.model.js";
 
 const getProduct = async (req, res) => {
   try {
-
-    // ✅ هات المنتجات بدون populate الأول (أكثر أمان)
     const products = await productModel.find();
 
     const result = await Promise.all(
       products.map(async (product) => {
 
-        let stock = 0;
-
-        try {
-          const inventory = await inventoryModel.findOne({
-            productId: product._id
-          });
-
-          stock = inventory ? inventory.quantity : 0;
-        } catch (invError) {
-          console.log("Inventory error:", invError.message);
-        }
+        const inventory = await inventoryModel.findOne({
+          productId: product._id
+        });
 
         return {
           _id: product._id,
@@ -29,23 +19,18 @@ const getProduct = async (req, res) => {
           price: product.price,
           image: product.image,
           owner: product.owner,
-          stock
+          stock: inventory?.quantity || 0
         };
       })
     );
 
     return res.status(200).json({
-      message: "Products fetched successfully",
       products: result
     });
 
   } catch (error) {
-
-    console.log("GET PRODUCTS FAILED:", error);
-
     return res.status(500).json({
-      message: "Server error in getProducts",
-      error: error.message
+      message: error.message
     });
   }
 };
@@ -124,15 +109,17 @@ const postProduct = async (req, res) => {
   try {
     const { title, price, quantity } = req.body;
 
-    if (!title || !price) {
-      return res.status(400).json({ message: "Title and price are required" });
-    }
+    const image = req.file
+      ? `/images/${req.file.filename}`
+      : null;
 
     const addedProduct = await productModel.create({
-      ...req.body,
+      title,
+      price,
+      quantity,
+      image,
       owner: req.user._id
     });
-
 
     await inventoryModel.create({
       productId: addedProduct._id,

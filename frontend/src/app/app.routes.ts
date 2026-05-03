@@ -13,7 +13,8 @@ import { authGuard } from './core/guards/auth.guard';
 import { OrderDetailsComponent } from './components/order-details/order-details.component';
 import { UpdateProductComponent } from './components/update-product/update-product.component';
 import { AddAdminComponent } from './components/add-admin/add-admin.component';
-import { ProfileComponent } from './profile/profile.component';
+import { ProfileComponent } from './components/profile/profile.component';
+
 
 export const routes: Routes = [
     {path:'',redirectTo:'home',pathMatch:'full'},
