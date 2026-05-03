@@ -1,0 +1,17 @@
+<div class="container" *ngIf="wallet">
+
+  <div class="card shadow-sm text-center p-3" style="max-width: 400px; margin: auto;">
+
+    <h3>My Wallet</h3>
+
+    <h5 class="text-success">
+      Balance: {{ wallet.balance }} EGP
+    </h5>
+
+    <p class="text-muted">
+      Wallet ID: {{ wallet._id }}
+    </p>
+
+  </div>
+
+</div>

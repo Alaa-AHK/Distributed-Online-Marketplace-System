@@ -7,10 +7,57 @@ import { Observable } from 'rxjs';
 })
 export class UserService {
 
-  constructor(private _HttpClient:HttpClient) { }
-  addAdmin(data:any):Observable<any>{
+  baseUrl = "http://localhost:3000/profile";
+
+  constructor(private _HttpClient: HttpClient) {}
+
+  // ✅ Get profile (correct endpoint = /profile)
+  getMe(): Observable<any> {
     const token = localStorage.getItem("Authorization") || '';
-        const headers = new HttpHeaders().set('Authorization', token);
-        return this._HttpClient.post('http://localhost:3000/user',data,{headers:headers});
+
+    const headers = new HttpHeaders().set(
+      'Authorization',
+      token
+    );
+
+    return this._HttpClient.get(this.baseUrl, { headers });
+  }
+
+  // (اختياري - غالبًا مش هتستخدميه هنا)
+  addAdmin(data: any): Observable<any> {
+    const token = localStorage.getItem("Authorization") || '';
+
+    const headers = new HttpHeaders().set(
+      'Authorization',
+      token
+    );
+
+    return this._HttpClient.post(`${this.baseUrl}`, data, { headers });
+  }
+
+updateUser(id: string, data: any): Observable<any> {
+  const token = localStorage.getItem("Authorization") || '';
+
+  const headers = new HttpHeaders().set(
+    'Authorization',
+    token
+  );
+
+  return this._HttpClient.patch(
+    `http://localhost:3000/user/${id}`,
+    data,
+    { headers }
+  );
+}
+
+  deleteUser(id: string): Observable<any> {
+    const token = localStorage.getItem("Authorization") || '';
+
+    const headers = new HttpHeaders().set(
+      'Authorization',
+      token
+    );
+
+    return this._HttpClient.delete(`http://localhost:3000/user/${id}`, { headers });
   }
 }

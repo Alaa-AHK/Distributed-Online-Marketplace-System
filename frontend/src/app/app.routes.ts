@@ -13,6 +13,7 @@ import { authGuard } from './core/guards/auth.guard';
 import { OrderDetailsComponent } from './components/order-details/order-details.component';
 import { UpdateProductComponent } from './components/update-product/update-product.component';
 import { AddAdminComponent } from './components/add-admin/add-admin.component';
+import { ProfileComponent } from './profile/profile.component';
 
 export const routes: Routes = [
     {path:'',redirectTo:'home',pathMatch:'full'},
@@ -27,5 +28,7 @@ export const routes: Routes = [
     {path:'orderDetails',component:OrderDetailsComponent,title:'Order| Details'},
     { path: 'update-product/:id', component: UpdateProductComponent },
     {path:'addAdmin',component:AddAdminComponent},
+    {path:'profile',component:ProfileComponent,title:'Profile'},
     {path:'**',component:NotfoundComponent,title:'NotFound | page'}
+
 ];

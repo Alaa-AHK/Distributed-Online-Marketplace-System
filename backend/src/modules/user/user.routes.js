@@ -7,7 +7,7 @@ export const UserRoutes=Router()
 UserRoutes.use(express.json())
 
 UserRoutes.get('/user',authMiddleware,getUser)
-UserRoutes.get('/Profile',authMiddleware,getMe)
+UserRoutes.get('/profile',authMiddleware,getMe)
 
 UserRoutes.post('/user',authMiddleware,postUser)
 

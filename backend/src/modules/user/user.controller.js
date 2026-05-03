@@ -60,7 +60,6 @@ const postUser = async (req, res) => {
 
 const updateUser=async(req,res)=>{
     try{
-       if (!isAdmin(req.user.email))return res.status(403).json({ message: "You don't have access to update User" });
         const {id}=req.params
         const updatedUser=await userModel.findByIdAndUpdate(id,{...req.body},{new:true})
         res.json({message:"updated successful",updatedUser})
