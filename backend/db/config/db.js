@@ -1,12 +1,14 @@
 import mongoose from 'mongoose';
 
+const uri = "mongodb+srv://salmaramadan348_db_user:H3ez4FNjg9om1oWh@cluster0.kx5l9yp.mongodb.net";
+
 const connections = {
-  userDB: mongoose.createConnection('mongodb://localhost:27017/userDB'),
-  productDB: mongoose.createConnection('mongodb://localhost:27017/productDB'),
-  paymentDB: mongoose.createConnection('mongodb://localhost:27017/paymentDB'),
-  inventoryDB: mongoose.createConnection('mongodb://localhost:27017/inventoryDB'),
-  chatDB: mongoose.createConnection('mongodb://localhost:27017/chatDB'),
-  reportDB: mongoose.createConnection('mongodb://localhost:27017/reportDB'),
+  userDB: mongoose.createConnection(`${uri}/userDB`),
+  productDB: mongoose.createConnection(`${uri}/productDB`),
+  paymentDB: mongoose.createConnection(`${uri}/paymentDB`),
+  inventoryDB: mongoose.createConnection(`${uri}/inventoryDB`),
+  chatDB: mongoose.createConnection(`${uri}/chatDB`),
+  reportDB: mongoose.createConnection(`${uri}/reportDB`),
 };
 
 export const connectDatabases = async () => {
