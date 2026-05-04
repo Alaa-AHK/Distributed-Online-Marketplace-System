@@ -16,18 +16,24 @@ export class ProductService {
     return this._HttpClient.get(`${this.baseUrl}/products`);
   }
 
+  // 🔍 Search products
+  searchProducts(keyword: string): Observable<any> {
+    return this._HttpClient.get(
+      `${this.baseUrl}/products/search?keyword=${keyword}`
+    );
+  }
+
   // Create product
-postProduct(data: any): Observable<any> {
-  const token = localStorage.getItem("Authorization") || '';
-  const headers = new HttpHeaders().set('Authorization', token);
+  postProduct(data: any): Observable<any> {
+    const token = localStorage.getItem("Authorization") || '';
+    const headers = new HttpHeaders().set('Authorization', token);
 
-  return this._HttpClient.post(
-    `${this.baseUrl}/product`,
-    data,
-    { headers }
-  );
-}
-
+    return this._HttpClient.post(
+      `${this.baseUrl}/product`,
+      data,
+      { headers }
+    );
+  }
 
   // Delete product
   deleteProduct(id: string): Observable<any> {
@@ -44,6 +50,8 @@ postProduct(data: any): Observable<any> {
 
     return this._HttpClient.patch(`${this.baseUrl}/product/${id}`, data, { headers });
   }
+
+  // Get single product
   getSingleProduct(id: string): Observable<any> {
     return this._HttpClient.get(`${this.baseUrl}/product/${id}`);
   }

@@ -32,18 +32,15 @@ export class ChatPageComponent implements OnInit, OnDestroy {
       this.users = [];
       return;
      }
-    const token = rawToken.replace('Bearer ', ''); 
+    const token = rawToken.replace('Bearer ', '');
     this.myId = this.getMyId(rawToken);
     this.chatService.connect(token);
 
-    this.msgSub = this.chatService.onNewMessage().subscribe((msg) => {
-      if (this.selectedUser) {
-        const roomId = [this.myId, this.selectedUser._id].sort().join('_');
-        if (msg.roomId === roomId) {
-          this.messages.push(msg);
-        }
-      }
-    });
+this.msgSub = this.chatService.onNewMessage().subscribe((msg) => {
+  if (this.selectedUser) {
+    this.messages.push(msg); // ✅ remove roomId check, just push
+  }
+});
 
     this.loadUsers();
   }

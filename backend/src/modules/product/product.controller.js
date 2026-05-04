@@ -42,8 +42,15 @@ const searchProducts = async (req, res) => {
   try {
     const { keyword } = req.query;
 
+    if (!keyword) {
+      return res.status(400).json({ message: "Keyword is required" });
+    }
+
     const products = await productModel.find({
-      title: { $regex: keyword, $options: "i" }
+      $or: [
+        { title: { $regex: keyword, $options: "i" } },
+        { brand: { $regex: keyword, $options: "i" } }
+      ]
     });
 
     res.json({ products });
@@ -107,19 +114,21 @@ const getSingleProduct = async (req, res) => {
 
 const postProduct = async (req, res) => {
   try {
-    const { title, price, quantity } = req.body;
+    const { title, price, quantity, brand, description } = req.body;
 
     const image = req.file
       ? `/images/${req.file.filename}`
       : null;
 
     const addedProduct = await productModel.create({
-      title,
-      price,
-      quantity,
-      image,
-      owner: req.user._id
-    });
+  title,
+  price,
+  quantity,
+  brand,
+  description,
+  image,
+  owner: req.user._id
+});
 
     await inventoryModel.create({
       productId: addedProduct._id,

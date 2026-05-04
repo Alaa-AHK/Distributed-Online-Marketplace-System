@@ -1,14 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { ProductService } from '../../Services/product.service';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { CartService } from '../../Services/cart.service';
 
 @Component({
   selector: 'app-product',
   standalone: true,
-  imports: [RouterLink, CommonModule, ReactiveFormsModule],
+  imports: [RouterLink, CommonModule, ReactiveFormsModule, FormsModule],
   templateUrl: './product.component.html',
   styleUrl: './product.component.css'
 })
@@ -18,7 +18,8 @@ export class ProductComponent implements OnInit {
   showCreateForm = false;
   userRole: string | null = null;
   selectedFile!: File;
-   imageBaseUrl = "http://localhost:3000";
+  imageBaseUrl = "http://localhost:3000";
+  searchKeyword: string = '';
 
   constructor(
     private _ProductService: ProductService,
@@ -26,8 +27,19 @@ export class ProductComponent implements OnInit {
     private _CartService: CartService
   ) {}
 
+
+search() {
+  this._ProductService.searchProducts(this.searchKeyword).subscribe({
+    next: (res: any) => {
+      this.products = res.products;
+    },
+    error: (err) => console.log(err)
+  });
+}
+
   productCreate = new FormGroup({
     title: new FormControl(null, [Validators.required]),
+    brand: new FormControl(null),
     description: new FormControl(null),
     price: new FormControl(null, [Validators.required]),
     quantity: new FormControl(1, [Validators.required]),
@@ -89,12 +101,12 @@ sendData() {
     const formData = new FormData();
 
     formData.append('title', this.productCreate.value.title || '');
+    formData.append('brand', this.productCreate.value.brand || '');
     formData.append('description', this.productCreate.value.description || '');
     formData.append('price', String(this.productCreate.value.price));
     formData.append('quantity', String(this.productCreate.value.quantity));
     formData.append('discount', String(this.productCreate.value.discount));
 
-    // الصورة
     if (this.selectedFile) {
       formData.append('image', this.selectedFile);
     }
@@ -111,7 +123,7 @@ sendData() {
 }
 
   deleteProduct(id: string) {
-    if (!confirm("Are you sure?")) return; // 🔥 safety
+    if (!confirm("Are you sure?")) return;
 
     this._ProductService.deleteProduct(id).subscribe({
       next: () => this.getProducts(),
