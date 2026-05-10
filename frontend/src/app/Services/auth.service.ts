@@ -16,6 +16,6 @@ export class AuthService {
     return this._HttpClient.post('http://localhost:3000/user/login',data,{headers:new HttpHeaders({
       'Authorization':`Bearer ${localStorage.getItem("token")}`
     })})
-    
+
   }
 }

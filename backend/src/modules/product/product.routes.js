@@ -9,7 +9,7 @@ import {
   deleteProduct,
   addRating,
   getSingleProduct,
-  searchProducts 
+  searchProducts ,buyProduct
 } from "../../modules/product/product.controller.js";
 
 export const ProductRoutes = Router();
@@ -47,3 +47,4 @@ ProductRoutes.delete('/product/:id', authMiddleware, deleteProduct);
 
 // Rate product
 ProductRoutes.post('/product/:productId/rate', authMiddleware, addRating);
+ProductRoutes.post("/buy/:productId", authMiddleware, buyProduct);

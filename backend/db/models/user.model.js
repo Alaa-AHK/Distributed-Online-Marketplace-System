@@ -6,7 +6,18 @@ const userSchema = new mongoose.Schema({
   email:       { type: String, required: true, unique: true },
   password:    { type: String, required: true },
   role:        { type: String, enum: ["buyer", "seller", "admin"], default: 'buyer' },
-  balance:     { type: Number, default: 0 },      // ← controller uses user.balance
+  balance:     { type: Number, default: 0 },  
+  purchasedItems: [{
+  productId: String,
+  quantity: Number
+}],
+
+soldItems: [{
+  productId: String,
+  quantity: Number
+}],
+
+searchHistory:[String] ,   
   isConfirmed: { type: Boolean, default: false },  // ← verifyAccount uses this
 }, { timestamps: true });
 

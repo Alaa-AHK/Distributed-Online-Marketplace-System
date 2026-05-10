@@ -2,6 +2,7 @@ import bcrypt from"bcrypt";
 import { userModel}from "../../../db/models/user.model.js"
 import jwt from"jsonwebtoken"
 import { sendMail } from "../../utilities/email/sendEmail.js"
+import { productModel } from "../../../db/models/product.model.js";
 
 const emailsAdmin=["salmaramadan348@gmail.com","salma.ramadan.mohammed@gmail.com"]
 const isAdmin = (email) => emailsAdmin.includes(email);
@@ -134,6 +135,7 @@ const login =async(req,res)=>{
     res.json({message:`welecome ${exist.userName}`,token})
     }
     catch(error){
+      
         res.status(500).json({ message: "Server error", error });
     }
     
@@ -156,27 +158,48 @@ const verifyAccount = async(req,res)=>{
 
 const getMe = async (req, res) => {
   try {
-    // 1. get user id from token (auth middleware)
-    const userId = req.user._id;
-
-    if (!userId) {
+    if (!req.user || !req.user._id) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    // 2. fetch user from DB
-    const user = await userModel.findById(userId).select("-password");
+    const userId = req.user._id;
+
+    const user = await userModel
+      .findById(userId)
+      .select("-password");
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // 3. return profile
+    // ✅ get full products for purchased items
+    const purchasedProducts = await productModel.find({
+      _id: { $in: user.purchasedItems.map(i => i.productId) }
+    });
+
+    // ✅ get full products for sold items
+    const soldProducts = await productModel.find({
+      _id: { $in: user.soldItems.map(i => i.productId) }
+    });
+
     return res.status(200).json({
       message: "User profile fetched successfully",
-      user
+      user: {
+        _id: user._id,
+        email: user.email,
+        role: user.role,
+
+        // 🔥 بدل IDs → full products
+        purchasedItems: purchasedProducts,
+        soldItems: soldProducts,
+
+        searchHistory: user.searchHistory || []
+      }
     });
 
   } catch (error) {
+    console.log("PROFILE ERROR:", error);
+
     return res.status(500).json({
       message: "Server error",
       error: error.message

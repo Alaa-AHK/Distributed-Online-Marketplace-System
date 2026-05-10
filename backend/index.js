@@ -63,7 +63,6 @@ app.use(TransactionRoutes)
 app.use(walletRoutes)
 app.use(ReportRoutes)
 app.use(ChatRoutes)
-app.use('/images', express.static('src/utilities/images'));
 
 app.get('/health',(req,res)=>{
   res.json({status:"ok"})

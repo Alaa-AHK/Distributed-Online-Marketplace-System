@@ -27,9 +27,15 @@ export class ProductComponent implements OnInit {
     private _CartService: CartService
   ) {}
 
-
 search() {
-  this._ProductService.searchProducts(this.searchKeyword).subscribe({
+  const keyword = this.searchKeyword?.trim();
+
+  if (!keyword) {
+    this.getProducts();
+    return;
+  }
+
+  this._ProductService.searchProducts(keyword).subscribe({
     next: (res: any) => {
       this.products = res.products;
     },

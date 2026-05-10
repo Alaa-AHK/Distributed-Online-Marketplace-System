@@ -93,7 +93,7 @@ const createOrder = async (req, res) => {
       await product.save();
 
       // =========================
-      // ORDER ITEMS FIX (IMPORTANT)
+      // ORDER ITEMS
       // =========================
       orderItems.push({
         productId: product._id,
@@ -101,16 +101,11 @@ const createOrder = async (req, res) => {
       });
 
       // =========================
-      // SELLER WALLET FIX (MISSING BEFORE)
+      // SELLER WALLET
       // =========================
       let sellerWallet = await walletModel.findOne({
         userId: product.owner
       });
-      await userModel.findByIdAndUpdate(
-  product.owner,
-  { $inc: { balance: itemTotal } },
-  { new: true }
-);
 
       if (!sellerWallet) {
         sellerWallet = await walletModel.create({
@@ -123,7 +118,35 @@ const createOrder = async (req, res) => {
       await sellerWallet.save();
 
       // =========================
-      // TRANSACTION FIX (VERY IMPORTANT)
+      //  USER TRACKING FIX (IMPORTANT)
+      // =========================
+
+      // Buyer purchasedItems
+      await userModel.findByIdAndUpdate(userId, {
+        $push: {
+          purchasedItems: {
+            productId: product._id,
+            quantity: item.quantity,
+            price: product.price,
+            date: new Date()
+          }
+        }
+      });
+
+      //  Seller soldItems
+      await userModel.findByIdAndUpdate(product.owner, {
+        $push: {
+          soldItems: {
+            productId: product._id,
+            quantity: item.quantity,
+            price: product.price,
+            date: new Date()
+          }
+        }
+      });
+
+      // =========================
+      // TRANSACTION
       // =========================
       await transactionModel.create({
         buyer: userId,

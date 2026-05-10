@@ -14,34 +14,32 @@
       </div>
 
       <!-- 💰 Wallet -->
-<div class="bg-light p-3 rounded mb-3">
+      <div class="bg-light p-3 rounded mb-3">
 
-  <span class="fw-bold text-success d-block mb-2">
-    💰 {{ wallet?.balance || 0 }} EGP
-  </span>
+        <span class="fw-bold text-success d-block mb-2">
+          💰 {{ wallet?.balance || 0 }} EGP
+        </span>
 
+        <button class="btn btn-outline-success btn-sm w-100"
+                (click)="showDeposit = !showDeposit">
+          Add Money
+        </button>
 
-  <button class="btn btn-outline-success btn-sm w-100"
-          (click)="showDeposit = !showDeposit">
-    Add Money
-  </button>
+        <div *ngIf="showDeposit" class="mt-2">
 
+          <input type="number"
+                 class="form-control mb-2"
+                 [(ngModel)]="depositAmount"
+                 placeholder="Enter amount">
 
-  <div *ngIf="showDeposit" class="mt-2">
+          <button class="btn btn-success w-100"
+                  (click)="deposit()">
+            Confirm
+          </button>
 
-    <input type="number"
-           class="form-control mb-2"
-           [(ngModel)]="depositAmount"
-           placeholder="Enter amount">
+        </div>
 
-    <button class="btn btn-success w-100"
-            (click)="deposit()">
-      Confirm
-    </button>
-
-  </div>
-
-</div>
+      </div>
 
       <p class="text-muted mb-1">
         {{ user.role || 'User' }}
@@ -67,6 +65,79 @@
         </button>
 
       </div>
+
+      <!-- 🛒 Sold Items -->
+      <div class="card mt-4 shadow-sm border-0">
+        <div class="card-body">
+
+          <h5 class="mb-3">🛒 Sold Items</h5>
+
+          <div *ngIf="soldItems.length > 0; else noSold">
+
+            <div *ngFor="let item of soldItems"
+                 class="d-flex align-items-center border rounded p-2 mb-2">
+
+              <img *ngIf="item.image"
+                   [src]="'http://localhost:3000' + item.image"
+                   width="70"
+                   height="70"
+                   class="rounded me-3">
+
+              <div>
+                <h6 class="mb-1">{{ item.title }}</h6>
+
+                <span class="text-success">
+                  {{ item.price }} EGP
+                </span>
+              </div>
+
+            </div>
+
+          </div>
+
+          <ng-template #noSold>
+            <p class="text-muted">No sold items yet</p>
+          </ng-template>
+
+        </div>
+      </div>
+
+      <!-- 📦 Purchased Items -->
+      <div class="card mt-4 shadow-sm border-0">
+        <div class="card-body">
+
+          <h5 class="mb-3">📦 Purchased Items</h5>
+
+          <div *ngIf="purchasedItems.length > 0; else noPurchased">
+
+            <div *ngFor="let item of purchasedItems"
+                 class="d-flex align-items-center border rounded p-2 mb-2">
+
+              <img *ngIf="item.image"
+                   [src]="'http://localhost:3000' + item.image"
+                   width="70"
+                   height="70"
+                   class="rounded me-3">
+
+              <div>
+                <h6 class="mb-1">{{ item.title }}</h6>
+
+                <span class="text-success">
+                  {{ item.price }} EGP
+                </span>
+              </div>
+
+            </div>
+
+          </div>
+
+          <ng-template #noPurchased>
+            <p class="text-muted">No purchased items yet</p>
+          </ng-template>
+
+        </div>
+      </div>
+
 
     </div>
 

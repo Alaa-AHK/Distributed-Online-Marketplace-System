@@ -1,5 +1,6 @@
 import { productModel } from "../../../db/models/product.model.js";
 import { inventoryModel } from "../../../db/models/inventory.model.js";
+import { userModel } from "../../../db/models/user.model.js";
 
 const getProduct = async (req, res) => {
   try {
@@ -65,14 +66,14 @@ const getSingleProduct = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // ✅ fetch product safely
+    // fetch product safely
     const product = await productModel.findById(id);
 
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
 
-    // ✅ safe inventory handling
+    //  safe inventory handling
     let stock = 0;
 
     try {
@@ -85,7 +86,7 @@ const getSingleProduct = async (req, res) => {
       console.log("Inventory error:", invError.message);
     }
 
-    // ✅ response cleaned for frontend
+    //  response cleaned for frontend
     return res.status(200).json({
       message: "Product fetched successfully",
       product: {
@@ -129,6 +130,14 @@ const postProduct = async (req, res) => {
   image,
   owner: req.user._id
 });
+await userModel.findByIdAndUpdate(
+   req.user._id,
+   {
+      $push:{
+         soldItems:addedProduct._id
+      }
+   }
+)
 
     await inventoryModel.create({
       productId: addedProduct._id,
@@ -144,7 +153,44 @@ const postProduct = async (req, res) => {
     res.status(500).json({ message: "Server error", error });
   }
 };
+const buyProduct = async (req, res) => {
+  try {
+    const { productId } = req.params;
 
+    // 1. check product exists
+    const product = await productModel.findById(productId);
+
+    if (!product) {
+      return res.status(404).json({
+        message: "Product not found"
+      });
+    }
+
+    // 2. add to user's purchased items with full data
+    await userModel.findByIdAndUpdate(
+      req.user._id,
+      {
+        $push: {
+          purchasedItems: {
+            productId: product._id,
+            quantity: 1,
+            price: product.price,
+            date: new Date()
+          }
+        }
+      }
+    );
+
+    return res.json({
+      message: "Product purchased successfully"
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message
+    });
+  }
+};
 
 const updateProduct = async (req, res) => {
   try {
@@ -155,7 +201,7 @@ const updateProduct = async (req, res) => {
       return res.status(404).json({ message: "Product not found" });
     }
 
-    // 🔒 owner check
+    //  owner check
     if (product.owner.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: "Not your product" });
     }
@@ -245,5 +291,6 @@ export {
   postProduct,
   updateProduct,
   deleteProduct,
-  addRating
+  addRating,
+  buyProduct
 };
