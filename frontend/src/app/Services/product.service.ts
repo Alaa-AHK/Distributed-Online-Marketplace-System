@@ -16,7 +16,7 @@ export class ProductService {
     return this._HttpClient.get(`${this.baseUrl}/products`);
   }
 
-  // 🔍 Search products
+  // Search products
   searchProducts(keyword: string): Observable<any> {
     return this._HttpClient.get(
       `${this.baseUrl}/products/search?keyword=${keyword}`

@@ -16,28 +16,40 @@ export class OrderService {
     return new HttpHeaders().set('Authorization', token);
   }
 
-
   getUserOrders(): Observable<any> {
-    return this._HttpClient.get(`${this.baseUrl}/order`, { headers: this.getAuthHeaders() });
+    return this._HttpClient.get(
+      `${this.baseUrl}/order`,
+      { headers: this.getAuthHeaders() }
+    );
   }
-
 
   getAllOrders(): Observable<any> {
-    return this._HttpClient.get(`${this.baseUrl}/orders`, { headers: this.getAuthHeaders() });
+    return this._HttpClient.get(
+      `${this.baseUrl}/orders`,
+      { headers: this.getAuthHeaders() }
+    );
   }
-
 
   postOrder(data: any): Observable<any> {
-    return this._HttpClient.post(`${this.baseUrl}/order`, data, { headers: this.getAuthHeaders() });
+    return this._HttpClient.post(
+      `${this.baseUrl}/order`,
+      data,
+      { headers: this.getAuthHeaders() }
+    );
   }
-
 
   deleteOrder(id: string | number): Observable<any> {
-    return this._HttpClient.delete(`${this.baseUrl}/order/${id}`, { headers: this.getAuthHeaders() });
+    return this._HttpClient.delete(
+      `${this.baseUrl}/order/${id}`,
+      { headers: this.getAuthHeaders() }
+    );
   }
 
-
   updateOrderStatus(id: string | number, data: any): Observable<any> {
-    return this._HttpClient.put(`${this.baseUrl}/order/${id}`, data, { headers: this.getAuthHeaders() });
+    return this._HttpClient.put(
+      `${this.baseUrl}/order/${id}`,
+      data,
+      { headers: this.getAuthHeaders() }
+    );
   }
 }

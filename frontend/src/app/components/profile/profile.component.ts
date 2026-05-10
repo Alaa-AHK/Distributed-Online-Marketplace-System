@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UserService } from '../../Services/user.service';
 import { WalletService } from '../../Services/wallet.service';
-
+import { Product } from '../../interface/product';
 @Component({
   selector: 'app-profile',
   standalone: true,
@@ -23,6 +23,9 @@ export class ProfileComponent implements OnInit {
   };
   showDeposit: boolean = false;
 depositAmount: number = 0;
+soldItems: Product[] = [];
+purchasedItems: Product[] = [];
+searchHistory: string[] = [];
 
   constructor(private userService: UserService,
     private walletService: WalletService
@@ -35,7 +38,6 @@ depositAmount: number = 0;
   }
   deposit() {
   if (!this.depositAmount || this.depositAmount <= 0) {
-    alert("Enter valid amount");
     return;
   }
 
@@ -43,7 +45,6 @@ depositAmount: number = 0;
     next: (res) => {
       console.log("Deposit success:", res);
 
-      // 🔄 تحديث الرصيد بعد الشحن
       this.getWallet();
 
       // reset
@@ -59,19 +60,24 @@ depositAmount: number = 0;
     error: (err) => console.log(err)
   });
 }
+getProfile() {
+  this.userService.getMe().subscribe({
+    next: (res) => {
 
-  getProfile() {
-    this.userService.getMe().subscribe({
-      next: (res) => {
-        this.user = res.user;
+      this.user = res.user;
 
-        // fill edit form
-        this.editData.userName = this.user.userName;
-        this.editData.email = this.user.email;
-      },
-      error: (err) => console.log(err)
-    });
-  }
+      this.soldItems = res.user.soldItems || [];
+      this.purchasedItems = res.user.purchasedItems || [];
+      this.searchHistory = res.user.searchHistory || [];
+
+      console.log("USER:", this.user);
+      console.log("SOLD:", this.soldItems);
+      console.log("PURCHASED:", this.purchasedItems);
+      console.log("SEARCH:", this.searchHistory);
+    },
+    error: (err) => console.log(err)
+  });
+}
 
   updateProfile() {
     const userId = this.user._id;
