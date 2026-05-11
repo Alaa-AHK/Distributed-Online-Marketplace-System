@@ -19,11 +19,13 @@
         <span class="fw-bold text-success d-block mb-2">
           💰 {{ wallet?.balance || 0 }} EGP
         </span>
-
-        <button class="btn btn-outline-success btn-sm w-100"
+        @if(userRole==='buyer'){
+          <button class="btn btn-outline-success btn-sm w-100"
                 (click)="showDeposit = !showDeposit">
           Add Money
         </button>
+        }
+
 
         <div *ngIf="showDeposit" class="mt-2">
 
@@ -67,7 +69,7 @@
       </div>
 
       <!-- 🛒 Sold Items -->
-      <div class="card mt-4 shadow-sm border-0">
+       @if(userRole ==='seller'){<div class="card mt-4 shadow-sm border-0">
         <div class="card-body">
 
           <h5 class="mb-3">🛒 Sold Items</h5>
@@ -100,10 +102,12 @@
           </ng-template>
 
         </div>
-      </div>
+      </div>}
+
 
       <!-- 📦 Purchased Items -->
-      <div class="card mt-4 shadow-sm border-0">
+       @if (userRole === 'buyer'){
+          <div class="card mt-4 shadow-sm border-0">
         <div class="card-body">
 
           <h5 class="mb-3">📦 Purchased Items</h5>
@@ -137,6 +141,8 @@
 
         </div>
       </div>
+       }
+
 
 
     </div>

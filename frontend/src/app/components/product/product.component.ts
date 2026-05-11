@@ -91,7 +91,6 @@ getProducts() {
       } else {
         this.products = [];
       }
-
       console.log("Mapped products:", this.products);
     },
     error: (err) => {

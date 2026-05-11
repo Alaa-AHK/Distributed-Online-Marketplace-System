@@ -1,60 +1,63 @@
 import { Component } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { Router } from '@angular/router';
 import { AuthService } from '../../Services/auth.service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [RouterLink,ReactiveFormsModule],
+  imports: [ReactiveFormsModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
 export class LoginComponent {
 
   constructor(
-    private _AuthService:AuthService,
-    private router:Router
-  ){}
+    private _AuthService: AuthService,
+    private router: Router,
+    private authService: AuthService
+  ) {}
 
-  errorMessage:string = '';
+  errorMessage: string = '';
 
   login = new FormGroup({
-    email:new FormControl(null,[Validators.email,Validators.required]),
-    password:new FormControl(null,[Validators.required])
-  })
+    email: new FormControl(null, [Validators.email, Validators.required]),
+    password: new FormControl(null, [Validators.required])
+  });
 
-  sendData(){
+  sendData() {
 
-    if(this.login.valid){
+    if (this.login.valid) {
 
       this._AuthService.login(this.login.value).subscribe({
 
-        next:(res)=>{
+        next: (res) => {
+
           console.log(res);
 
+          // 💾 SAVE TOKEN
           localStorage.setItem(
             "Authorization",
-            'Bearer ' + res.token
+            "Bearer " + res.token
           );
 
-          this.router.navigate(['/home'])
+          // 🔥 DECODE ROLE
+          const decoded: any = JSON.parse(atob(res.token.split('.')[1]));
+
+          // 🔥 UPDATE ROLE STATE (IMPORTANT)
+          this.authService.setRole(decoded.role);
+
+          // 🚀 NAVIGATE
+          this.router.navigate(['/home']);
         },
 
-        error:(err)=>{
+        error: (err) => {
           console.log(err);
-
           this.errorMessage = err.error.message;
-        },
-
-        complete:()=>{
-          console.log("complete")
         }
 
-      })
+      });
 
     }
-
   }
-
 }
