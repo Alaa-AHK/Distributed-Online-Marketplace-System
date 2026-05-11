@@ -87,19 +87,21 @@ const getSingleProduct = async (req, res) => {
     }
 
     //  response cleaned for frontend
-    return res.status(200).json({
-      message: "Product fetched successfully",
-      product: {
-        _id: product._id,
-        title: product.title,
-        description: product.description,
-        price: product.price,
-        image: product.image,
-        owner: product.owner,
-        status: product.status,
-        stock
-      }
-    });
+   return res.status(200).json({
+  message: "Product fetched successfully",
+  product: {
+    _id: product._id,
+    title: product.title,
+    brand: product.brand,
+    description: product.description,
+    price: product.price,
+    quantity: product.quantity, 
+    image: product.image,
+    owner: product.owner,
+    status: product.status,
+    stock
+  }
+});
 
   } catch (error) {
 
@@ -194,35 +196,56 @@ const buyProduct = async (req, res) => {
 
 const updateProduct = async (req, res) => {
   try {
+
     const { id } = req.params;
 
     const product = await productModel.findById(id);
+
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
 
-    //  owner check
     if (product.owner.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: "Not your product" });
     }
 
+    const updateData = {
+      ...(req.body.title && { title: req.body.title }),
+      ...(req.body.brand && { brand: req.body.brand }),
+      ...(req.body.description && { description: req.body.description }),
+      ...(req.body.price && { price: req.body.price }),
+      ...(req.body.quantity && { quantity: Number(req.body.quantity) }),
+    };
+
+    if (req.file) {
+      updateData.image = `/images/${req.file.filename}`;
+    }
+
     const updatedProduct = await productModel.findByIdAndUpdate(
       id,
-      req.body,
+      updateData,
       { new: true }
     );
 
-    if (req.body.quantity !== undefined) {
+    // 🔥 sync inventory
+    if (req.body.quantity) {
       await inventoryModel.findOneAndUpdate(
         { productId: id },
-        { quantity: req.body.quantity }
+        { quantity: Number(req.body.quantity) }
       );
     }
 
-    res.json({ message: "Updated successfully", updatedProduct });
+    return res.status(200).json({
+      message: "Updated successfully",
+      updatedProduct
+    });
 
   } catch (error) {
-    res.status(500).json({ message: "Server error", error });
+    console.log("UPDATE ERROR:", error);
+    return res.status(500).json({
+      message: "Server error",
+      error: error.message
+    });
   }
 };
 

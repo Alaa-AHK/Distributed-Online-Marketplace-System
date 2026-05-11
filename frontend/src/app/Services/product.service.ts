@@ -11,6 +11,11 @@ export class ProductService {
 
   constructor(private _HttpClient: HttpClient) {}
 
+  private getHeaders() {
+    const token = localStorage.getItem("Authorization") || '';
+    return new HttpHeaders().set('Authorization', token);
+  }
+
   // Get all products
   getproducts(): Observable<any> {
     return this._HttpClient.get(`${this.baseUrl}/products`);
@@ -25,46 +30,43 @@ export class ProductService {
 
   // Create product
   postProduct(data: any): Observable<any> {
-    const token = localStorage.getItem("Authorization") || '';
-    const headers = new HttpHeaders().set('Authorization', token);
-
     return this._HttpClient.post(
       `${this.baseUrl}/product`,
       data,
-      { headers }
+      { headers: this.getHeaders() }
     );
   }
 
   // Delete product
   deleteProduct(id: string): Observable<any> {
-    const token = localStorage.getItem("Authorization") || '';
-    const headers = new HttpHeaders().set('Authorization', token);
-
-    return this._HttpClient.delete(`${this.baseUrl}/product/${id}`, { headers });
+    return this._HttpClient.delete(
+      `${this.baseUrl}/product/${id}`,
+      { headers: this.getHeaders() }
+    );
   }
 
-  // Update product
+  // Update product (PATCH)
   updateProduct(id: string, data: any): Observable<any> {
-    const token = localStorage.getItem("Authorization") || '';
-    const headers = new HttpHeaders().set('Authorization', token);
-
-    return this._HttpClient.patch(`${this.baseUrl}/product/${id}`, data, { headers });
+    return this._HttpClient.patch(
+      `${this.baseUrl}/product/${id}`,
+      data,
+      { headers: this.getHeaders() }
+    );
   }
 
   // Get single product
   getSingleProduct(id: string): Observable<any> {
-    return this._HttpClient.get(`${this.baseUrl}/product/${id}`);
+    return this._HttpClient.get(
+      `${this.baseUrl}/product/${id}`
+    );
   }
 
   // Rate product
   rateProduct(productId: string, ratingData: any): Observable<any> {
-    const token = localStorage.getItem("Authorization") || '';
-    const headers = new HttpHeaders().set('Authorization', token);
-
     return this._HttpClient.post(
       `${this.baseUrl}/product/${productId}/rate`,
       ratingData,
-      { headers }
+      { headers: this.getHeaders() }
     );
   }
 }
