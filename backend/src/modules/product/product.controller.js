@@ -64,7 +64,46 @@ const searchProducts = async (req, res) => {
   }
 };
 
+const getMyProducts = async (req, res) => {
+  try {
 
+    const products = await productModel.find({
+      owner: req.user._id
+    });
+
+    const result = await Promise.all(
+      products.map(async (product) => {
+
+        const inventory = await inventoryModel.findOne({
+          productId: product._id
+        });
+
+        const stock = inventory?.quantity || 0;
+
+        return {
+          _id: product._id,
+          title: product.title,
+          description: product.description,
+          price: product.price,
+          image: product.image,
+          owner: product.owner,
+          stock
+        };
+      })
+    );
+
+    return res.status(200).json({
+      products: result
+    });
+
+  } catch (error) {
+
+    return res.status(500).json({
+      message: error.message
+    });
+
+  }
+};
 const getSingleProduct = async (req, res) => {
   try {
     const { id } = req.params;
@@ -318,5 +357,6 @@ export {
   updateProduct,
   deleteProduct,
   addRating,
-  buyProduct
+  buyProduct,
+  getMyProducts
 };

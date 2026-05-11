@@ -2,15 +2,7 @@ import express, { Router } from "express";
 import multer from "multer";
 
 import { authMiddleware } from "../../middleware/authMiddleware.js";
-import {
-  getProduct,
-  postProduct,
-  updateProduct,
-  deleteProduct,
-  addRating,
-  getSingleProduct,
-  searchProducts ,buyProduct
-} from "../../modules/product/product.controller.js";
+import {getProduct,postProduct,updateProduct,deleteProduct,addRating,getSingleProduct,searchProducts ,buyProduct,getMyProducts} from "../../modules/product/product.controller.js";
 
 export const ProductRoutes = Router();
 
@@ -46,6 +38,7 @@ ProductRoutes.patch(
   upload.single('image'),   
   updateProduct
 );
+ProductRoutes.get("/my-products",authMiddleware,getMyProducts);
 
 // Delete product
 ProductRoutes.delete('/product/:id', authMiddleware, deleteProduct);

@@ -20,6 +20,7 @@ export class ProductComponent implements OnInit {
   selectedFile!: File;
   imageBaseUrl = "http://localhost:3000";
   searchKeyword: string = '';
+  showMyProducts: boolean = false;
 
   constructor(
     private _ProductService: ProductService,
@@ -27,22 +28,36 @@ export class ProductComponent implements OnInit {
     private _CartService: CartService
   ) {}
 
-search() {
-  const keyword = this.searchKeyword?.trim();
+  // ================= ROLE =================
+  extractUserRole() {
+    const token = localStorage.getItem('Authorization');
+    if (!token) return;
 
-  if (!keyword) {
-    this.getProducts();
-    return;
+    try {
+      const pureToken = token.split(' ')[1];
+      const decoded: any = JSON.parse(atob(pureToken.split('.')[1]));
+
+      this.userRole = decoded.role;
+      console.log("User Role:", this.userRole);
+
+    } catch (e) {
+      console.log("Error decoding token", e);
+    }
   }
 
-  this._ProductService.searchProducts(keyword).subscribe({
-    next: (res: any) => {
-      this.products = res.products;
-    },
-    error: (err) => console.log(err)
-  });
-}
+  // ================= INIT =================
+  ngOnInit(): void {
+    this.extractUserRole();
 
+    if (this.userRole === 'seller') {
+      this.getMyProducts();
+    } else {
+      // buyer + admin
+      this.getProducts();
+    }
+  }
+
+  // ================= FORMS =================
   productCreate = new FormGroup({
     title: new FormControl(null, [Validators.required]),
     brand: new FormControl(null),
@@ -53,55 +68,75 @@ search() {
     image: new FormControl(null)
   });
 
-  ngOnInit(): void {
-    this.extractUserRole();
-    this.getProducts();
-  }
-
   onFileSelected(event: any) {
-  this.selectedFile = event.target.files[0];
-}
-
-  extractUserRole() {
-    const token = localStorage.getItem('Authorization');
-
-    if (!token) return;
-
-    try {
-      const pureToken = token.split(' ')[1];
-      const decoded: any = JSON.parse(atob(pureToken.split('.')[1]));
-
-      this.userRole = decoded.role;
-
-      console.log("User Role:", this.userRole);
-    } catch (e) {
-      console.log("Error decoding token", e);
-    }
+    this.selectedFile = event.target.files[0];
   }
 
-getProducts() {
-  this._ProductService.getproducts().subscribe({
-    next: (res: any) => {
-      console.log("Products API Response:", res);
-
-      if (res?.products && Array.isArray(res.products)) {
-        this.products = res.products;
-      } else if (Array.isArray(res)) {
-        this.products = res;
-      } else {
+  // ================= PRODUCTS =================
+  getProducts() {
+    this._ProductService.getproducts().subscribe({
+      next: (res: any) => {
+        if (res?.products && Array.isArray(res.products)) {
+          this.products = res.products;
+        } else if (Array.isArray(res)) {
+          this.products = res;
+        } else {
+          this.products = [];
+        }
+      },
+      error: (err) => {
+        console.log(err);
         this.products = [];
       }
-      console.log("Mapped products:", this.products);
-    },
-    error: (err) => {
-      console.log("Error loading products:", err);
-      this.products = [];
-    }
-  });
-}
+    });
+  }
 
-sendData() {
-  if (this.productCreate.valid) {
+  getMyProducts() {
+    this._ProductService.getMyProducts().subscribe({
+      next: (res: any) => {
+        if (res?.products && Array.isArray(res.products)) {
+          this.products = res.products;
+        } else {
+          this.products = [];
+        }
+      },
+      error: (err) => {
+        console.log(err);
+        this.products = [];
+      }
+    });
+  }
+
+  toggleMyProducts() {
+    this.showMyProducts = !this.showMyProducts;
+
+    if (this.showMyProducts) {
+      this.getMyProducts();
+    } else {
+      this.getProducts();
+    }
+  }
+
+  // ================= SEARCH =================
+  search() {
+    const keyword = this.searchKeyword?.trim();
+
+    if (!keyword) {
+      this.getProducts();
+      return;
+    }
+
+    this._ProductService.searchProducts(keyword).subscribe({
+      next: (res: any) => {
+        this.products = res.products;
+      },
+      error: (err) => console.log(err)
+    });
+  }
+
+  // ================= CREATE PRODUCT =================
+  sendData() {
+    if (!this.productCreate.valid) return;
 
     const formData = new FormData();
 
@@ -120,26 +155,40 @@ sendData() {
       next: (res) => {
         console.log(res);
         this.showCreateForm = false;
-        this.getProducts();
+
+        // refresh correctly
+        if (this.userRole === 'seller') {
+          this.getMyProducts();
+        } else {
+          this.getProducts();
+        }
       },
       error: (err) => console.log(err)
     });
   }
-}
 
+  // ================= DELETE =================
   deleteProduct(id: string) {
     if (!confirm("Are you sure?")) return;
 
     this._ProductService.deleteProduct(id).subscribe({
-      next: () => this.getProducts(),
+      next: () => {
+        if (this.userRole === 'seller') {
+          this.getMyProducts();
+        } else {
+          this.getProducts();
+        }
+      },
       error: (err) => console.log(err)
     });
   }
 
+  // ================= UPDATE =================
   goToUpdatePage(id: string) {
     this.router.navigate(['/update-product', id]);
   }
 
+  // ================= CART =================
   addToCart(product: any, event: Event) {
     event.preventDefault();
 
@@ -166,5 +215,4 @@ sendData() {
       error: (err) => console.log(err)
     });
   }
-
 }

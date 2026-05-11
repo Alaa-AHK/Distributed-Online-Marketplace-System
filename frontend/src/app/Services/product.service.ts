@@ -69,4 +69,11 @@ export class ProductService {
       { headers: this.getHeaders() }
     );
   }
+  // Get my products
+getMyProducts(): Observable<any> {
+  return this._HttpClient.get(
+    `${this.baseUrl}/my-products`,
+    { headers: this.getHeaders() }
+  );
+}
 }
