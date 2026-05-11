@@ -9,13 +9,13 @@ import { CartRoutes } from "./src/modules/cart/cart.routes.js";
 import { OrderRoutes } from "./src/modules/order/order.routes.js";
 import cors from 'cors'
 import TransactionRoutes from './src/modules/transaction/transaction.routes.js';
-import{walletRoutes}from "./src/modules/wallet/wallet.routes.js";
-import { ReportRoutes} from "./src/modules/report/report.routes.js";
-import {ChatRoutes} from "./src/modules/chat/chat.routes.js";
+import { walletRoutes } from "./src/modules/wallet/wallet.routes.js";
+import { ReportRoutes } from "./src/modules/report/report.routes.js";
+import { ChatRoutes } from "./src/modules/chat/chat.routes.js";
 import { chatSocket } from "./src/modules/chat/chat.socketio.js";
 import path from "path";
 
-const app=express()
+const app = express()
 const server = http.createServer(app);
 
 const io = new Server(server, {
@@ -30,7 +30,6 @@ io.use((socket, next) => {
   const token = socket.handshake.auth.token;
   if (!token) return next(new Error("Unauthorized"));
   try {
-    //socket.user = jwt.verify(token, process.env.JWT_SECRET);
     socket.user = jwt.verify(token, "Day4");
     next();
   } catch {
@@ -42,17 +41,19 @@ io.use((socket, next) => {
 chatSocket(io);
 
 app.use(express.json())
+
 app.use('/images', express.static(path.join(process.cwd(), 'src/utilities/images')));
-let x=true
-const isAuth=(req,res,next)=>{
-if(x)next()
-  else res.json({message:"not auth"})
+
+let x = true
+
+const isAuth = (req, res, next) => {
+  if (x) next()
+  else res.json({ message: "not auth" })
 }
 
-
 app.use(cors({
-origin:'http://localhost:4200',
-credentials: true
+  origin: 'http://localhost:4200',
+  credentials: true
 }));
 
 app.use(UserRoutes)
@@ -64,17 +65,14 @@ app.use(walletRoutes)
 app.use(ReportRoutes)
 app.use(ChatRoutes)
 
-app.get('/health',(req,res)=>{
-  res.json({status:"ok"})
+app.get('/health', (req, res) => {
+  res.json({ status: "ok" })
 })
 
-app.get('/',isAuth,(req,res)=>{
-    res.json({message:"done"})
+app.get('/', isAuth, (req, res) => {
+  res.json({ message: "done" })
 })
-
-
 
 connectDatabases().then(() => {
-  server.listen(3000, () => console.log(' Server running on port 3000'));
+  server.listen(3000, () => console.log('Server running on port 3000'));
 });
-

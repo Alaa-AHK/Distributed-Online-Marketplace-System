@@ -4,6 +4,7 @@ import { userModel } from "../../../db/models/user.model.js";
 
 const getProduct = async (req, res) => {
   try {
+
     const products = await productModel.find();
 
     const result = await Promise.all(
@@ -13,6 +14,8 @@ const getProduct = async (req, res) => {
           productId: product._id
         });
 
+        const stock = inventory?.quantity || 0;
+
         return {
           _id: product._id,
           title: product.title,
@@ -20,13 +23,13 @@ const getProduct = async (req, res) => {
           price: product.price,
           image: product.image,
           owner: product.owner,
-          stock: inventory?.quantity || 0
+          stock
         };
       })
     );
 
     return res.status(200).json({
-      products: result
+      products: result.filter(p => p !== null) 
     });
 
   } catch (error) {

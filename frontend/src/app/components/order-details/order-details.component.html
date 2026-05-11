@@ -2,7 +2,7 @@
 <div  class="div-main">
     @for(order of orders;track $index){
 <div  class="card mb-4" style="border-radius: 10px;">
-    
+
     <!-- Card Header -->
     <div class="card-header px-4 py-5 d-flex justify-content-between">
       <div>
@@ -23,7 +23,11 @@
           <div class="card-body">
             <div class="row">
               <div class="col-md-2">
-                <img [src]="item.productId?.image || 'assets/placeholder.jpg'" class="img-fluid" alt="Product" />
+                <img
+  [src]="'http://localhost:3000' + item.productId?.image"
+  class="img-fluid"
+  alt="Product"
+/>
               </div>
               <div class="col-md-3 d-flex align-items-center">
                 <p class="text-muted mb-0">{{ item.productId?.name || 'Unknown Product' }}</p>
@@ -36,16 +40,16 @@
               </div>
               <div class="col-md-3 d-flex align-items-center">
                 <p class="text-muted mb-0 small">Subtotal: ${{ (item.productId?.price || 0) * (item.quantity || 0) }}</p>
-                  
+
               </div>
             </div>
           </div>
         </div>
             }
-        
+
       </div>
        }
-      
+
 @else {
           <ng-template #noItems>
         <p class="text-muted">No items found in this order.</p>
@@ -75,12 +79,12 @@
     </div>
   </div>
     }
-  
+
 </div>
 }
 
 @else {
-    
+
   <div class="container py-5 text-center">
     <h4 class="text-muted">No orders found</h4>
   </div>
