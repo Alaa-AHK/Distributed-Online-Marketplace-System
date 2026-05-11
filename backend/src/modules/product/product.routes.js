@@ -40,7 +40,12 @@ ProductRoutes.get('/product/:id', getSingleProduct);
 ProductRoutes.post('/product', authMiddleware, upload.single('image'), postProduct);
 
 // Update product
-ProductRoutes.patch('/product/:id', authMiddleware, updateProduct);
+ProductRoutes.patch(
+  '/product/:id',
+  authMiddleware,
+  upload.single('image'),   
+  updateProduct
+);
 
 // Delete product
 ProductRoutes.delete('/product/:id', authMiddleware, deleteProduct);
