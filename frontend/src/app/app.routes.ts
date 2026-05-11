@@ -7,7 +7,6 @@ import { LoginComponent } from './components/login/login.component';
 import { RegisterComponent } from './components/register/register.component';
 import { AboutComponent } from './components/about/about.component';
 import { NotfoundComponent } from './components/notfound/notfound.component';
-import { OrderMangeComponent } from './components/order-mange/order-mange.component';
 import { ProductDetailsComponent } from './components/product-details/product-details.component';
 import { authGuard } from './core/guards/auth.guard';
 import { OrderDetailsComponent } from './components/order-details/order-details.component';
@@ -19,7 +18,7 @@ import { ChatPageComponent } from './components/chat-page/chat-page.component';
 
 
 export const routes: Routes = [
-    {path:'',redirectTo:'home',pathMatch:'full'},
+    {path:'',redirectTo:'login',pathMatch:'full'},
     {path:'home',component:HomeComponent,title:'Home | page'},
     {path:'product',component:ProductComponent,title:'Products | page'},
     {path:'cart',component:CartComponent,title:'Cart | page',canActivate: [authGuard]},

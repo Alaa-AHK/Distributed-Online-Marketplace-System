@@ -14,10 +14,11 @@
            <div class="row" *ngFor="let item of productsCart">
   <!-- Product Image -->
   <div class="col-lg-3 col-md-12 mb-4 mb-lg-0">
-    <img 
-      [src]="item.productId?.image" 
-      class="w-100" 
-      alt="{{ item.productId?.name }}" />
+    <img
+  [src]="'http://localhost:3000' + item.productId?.image"
+  class="w-100"
+  alt="{{ item.productId?.name }}"
+/>
   </div>
 
   <!-- Product Details -->
@@ -32,22 +33,22 @@
   <!-- Quantity -->
 <div class="col-lg-4 col-md-6 mb-4 mb-lg-0">
   <div class="d-flex mb-4" style="max-width: 300px">
-    <button 
-      class="btn btn-primary" 
-      (click)="updateCartQuan(item.productId._id, item.quantity - 1)" 
+    <button
+      class="btn btn-primary"
+      (click)="updateCartQuan(item.productId._id, item.quantity - 1)"
       [disabled]="item.quantity <= 1">
       -
     </button>
 
-    <input 
-      type="number" 
-      [(ngModel)]="item.quantity" 
-      min="1" 
+    <input
+      type="number"
+      [(ngModel)]="item.quantity"
+      min="1"
       class="form-control mx-2"
       (change)="updateCartQuan(item.productId._id, item.quantity)" />
 
-    <button 
-      class="btn btn-primary" 
+    <button
+      class="btn btn-primary"
       (click)="updateCartQuan(item.productId._id, item.quantity + 1)">
       +
     </button>

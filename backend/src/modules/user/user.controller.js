@@ -121,40 +121,75 @@ const register = async (req, res) => {
   }
 };
 
-const login =async(req,res)=>{
-    try{
-    const exist=await userModel.findOne({email:req.body.email})
-    if(!exist){
-        return res.json({message:"email or password invalid"})
-    }
-    const matchPass=bcrypt.compareSync(req.body.password, exist.password)
-    if(!matchPass){
-      return res.status(401).json({message:"email or password invalid"})
-}
-    const token=jwt.sign({_id:exist._id,role:exist.role,email:exist.email},"Day4")//sign for hash //verfiy for check //decode for not hash
-    res.json({message:`welecome ${exist.userName}`,token})
-    }
-    catch(error){
-      
-        res.status(500).json({ message: "Server error", error });
-    }
-    
-}
-const verifyAccount = async(req,res)=>{
-      let {email} =  req.params
-     
-       jwt.verify(email, "NTIG13Mail", async(err,decoded)=>{
-        
-        
-           if(err) return res.json({message:"invalid token",err})
-        await userModel.findOneAndUpdate({email:decoded.email}, {isConfirmed:true})
-         res.json({message:"confirmed successfully"})
-       })
-       
+const login = async (req, res) => {
+  try {
 
-      
-       
-}
+    const exist = await userModel.findOne({ email: req.body.email });
+
+    if (!exist) {
+      return res.status(401).json({
+        message: "email or password invalid"
+      });
+    }
+
+    // check email confirmation
+    if (exist.isConfirmed === false) {
+      return res.status(403).json({
+        message: "Please verify your email first"
+      });
+    }
+
+    const matchPass = bcrypt.compareSync(
+      req.body.password,
+      exist.password
+    );
+
+    if (!matchPass) {
+      return res.status(401).json({
+        message: "email or password invalid"
+      });
+    }
+
+    const token = jwt.sign(
+      {
+        _id: exist._id,
+        role: exist.role,
+        email: exist.email
+      },
+      "Day4"
+    );
+
+    res.json({
+      message: `welcome ${exist.userName}`,
+      token
+    });
+
+  } catch (error) {
+
+    res.status(500).json({
+      message: "Server error",
+      error
+    });
+
+  }
+};
+const verifyAccount = async (req, res) => {
+  let { email } = req.params;
+
+  jwt.verify(email, "NTIG13Mail", async (err, decoded) => {
+
+    if (err) {
+      return res.send("Invalid Token");
+    }
+
+    await userModel.findOneAndUpdate(
+      { email: decoded.email },
+      { isConfirmed: true }
+    );
+
+    res.redirect("http://localhost:4200/login");
+  });
+};
 
 const getMe = async (req, res) => {
   try {
@@ -172,12 +207,12 @@ const getMe = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // ✅ get full products for purchased items
+    // get full products for purchased items
     const purchasedProducts = await productModel.find({
       _id: { $in: user.purchasedItems.map(i => i.productId) }
     });
 
-    // ✅ get full products for sold items
+    //  get full products for sold items
     const soldProducts = await productModel.find({
       _id: { $in: user.soldItems.map(i => i.productId) }
     });
