@@ -26,6 +26,7 @@ depositAmount: number = 0;
 soldItems: Product[] = [];
 purchasedItems: Product[] = [];
 searchHistory: string[] = [];
+userRole: string | null = null;
 
   constructor(private userService: UserService,
     private walletService: WalletService
@@ -34,8 +35,26 @@ searchHistory: string[] = [];
   ngOnInit(): void {
     this.getProfile();
     this.getWallet();
-    this.deposit()
+    this.deposit();
+    this.extractUserRole();
   }
+  extractUserRole() {
+  const token = localStorage.getItem('Authorization');
+
+  if (!token) return;
+
+  try {
+    const pureToken = token.split(' ')[1];
+    const decoded: any = JSON.parse(atob(pureToken.split('.')[1]));
+
+    this.userRole = decoded.role;
+
+    console.log("User Role:", this.userRole);
+
+  } catch (e) {
+    console.log("Error decoding token", e);
+  }
+}
   deposit() {
   if (!this.depositAmount || this.depositAmount <= 0) {
     return;

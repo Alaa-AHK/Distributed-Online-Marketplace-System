@@ -108,14 +108,16 @@
             </a>
 
             <br />
-
-            <a href="#"
+@if (userRole === 'buyer'){
+<a href="#"
                class="btn cart px-auto mt-2"
                (click)="addToCart(product, $event)"
                [class.disabled]="product.stock === 0">
 
               Add to Cart
             </a>
+}
+
 
             @if (userRole === 'admin' || userRole === 'seller') {
   <div class="mt-2 d-flex justify-content-center">
