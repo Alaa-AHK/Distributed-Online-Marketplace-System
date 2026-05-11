@@ -17,7 +17,6 @@ export class NavbarComponent implements OnInit {
 
   ngOnInit(): void {
 
-    // 🔥 LIVE ROLE LISTENER
     this.authService.role$.subscribe(role => {
       this.userRole = role;
       console.log("Navbar Role Updated:", role);

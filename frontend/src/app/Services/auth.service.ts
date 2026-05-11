@@ -9,16 +9,13 @@ export class AuthService {
 
   constructor(private _HttpClient: HttpClient) {}
 
-  // 👇 ROLE STATE
   private roleSubject = new BehaviorSubject<string | null>(this.getRole());
   role$ = this.roleSubject.asObservable();
 
-  // 👇 UPDATE ROLE
   setRole(role: string) {
     this.roleSubject.next(role);
   }
 
-  // 👇 READ ROLE FROM TOKEN
   getRole(): string | null {
     const token = localStorage.getItem('Authorization');
 
