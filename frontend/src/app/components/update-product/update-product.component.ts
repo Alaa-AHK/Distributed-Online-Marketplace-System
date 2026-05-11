@@ -55,7 +55,6 @@ onFileSelected(event: any) {
       this.imagePreview = reader.result;
     };
 
-    // ✅ FIX HERE
     reader.readAsDataURL(this.selectedFile as File);
   }
 }
