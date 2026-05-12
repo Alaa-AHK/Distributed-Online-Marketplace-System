@@ -6,4 +6,3 @@ export const ReportRoutes = Router();
 ReportRoutes.use(express.json());
 
 ReportRoutes.get("/report/summary",authMiddleware , summaryReport);
-
