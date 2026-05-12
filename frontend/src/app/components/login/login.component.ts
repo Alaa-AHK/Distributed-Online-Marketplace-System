@@ -13,11 +13,10 @@ import { CommonModule } from '@angular/common';
 })
 export class LoginComponent {
 
-  constructor(
-    private _AuthService: AuthService,
-    private router: Router,
-    private authService: AuthService
-  ) {}
+ constructor(
+  private authService: AuthService,
+  private router: Router
+) {}
 
   errorMessage: string = '';
 
@@ -28,37 +27,30 @@ export class LoginComponent {
 
   sendData() {
 
-    if (this.login.valid) {
+  if (this.login.valid) {
 
-      this._AuthService.login(this.login.value).subscribe({
+    this.authService.login(this.login.value).subscribe({
 
-        next: (res) => {
+      next: (res) => {
 
-          console.log(res);
+        localStorage.setItem(
+          "Authorization",
+          "Bearer " + res.token
+        );
 
-          // 💾 SAVE TOKEN
-          localStorage.setItem(
-            "Authorization",
-            "Bearer " + res.token
-          );
+        const decoded: any = JSON.parse(atob(res.token.split('.')[1]));
 
-          //DECODE ROLE
-          const decoded: any = JSON.parse(atob(res.token.split('.')[1]));
+        this.authService.setRole(decoded.role);
 
-          //UPDATE ROLE STATE (IMPORTANT)
-          this.authService.setRole(decoded.role);
+        this.router.navigate(['/home']);
+      },
 
-          //NAVIGATE
-          this.router.navigate(['/home']);
-        },
+      error: (err) => {
+        this.errorMessage = err.error.message;
+      }
 
-        error: (err) => {
-          console.log(err);
-          this.errorMessage = err.error.message;
-        }
+    });
 
-      });
-
-    }
   }
+}
 }

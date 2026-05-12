@@ -22,13 +22,16 @@ export class NavbarComponent implements OnInit {
 
   ngOnInit(): void {
 
-    this.authService.role$.subscribe(role => {
-      this.userRole = role;
-      this.isLoggedIn = !!role;
-      console.log("Navbar Role Updated:", role);
-    });
+  const token = localStorage.getItem('Authorization');
 
-  }
+  this.isLoggedIn = !!token;
+
+  this.authService.role$.subscribe(role => {
+    this.userRole = role;
+    this.isLoggedIn = !!role;
+  });
+
+}
   logout() {
     localStorage.removeItem('Authorization');
     this.authService.setRole(null);

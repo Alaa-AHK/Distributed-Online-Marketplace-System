@@ -7,13 +7,18 @@ import { Observable, BehaviorSubject } from 'rxjs';
 })
 export class AuthService {
 
-  constructor(private _HttpClient: HttpClient) {}
-
   private roleSubject = new BehaviorSubject<string | null>(this.getRole());
   role$ = this.roleSubject.asObservable();
 
+  constructor(private _HttpClient: HttpClient) {}
+
   setRole(role: string | null) {
     this.roleSubject.next(role);
+
+    // مهم جدًا: sync مع localStorage
+    if (role === null) {
+      localStorage.removeItem('Authorization');
+    }
   }
 
   getRole(): string | null {
