@@ -1,0 +1,58 @@
+<button class="chat-fab" type="button" (click)="toggleChat()" aria-label="Open chat">
+  <i class="bi bi-chat-dots"></i>
+</button>
+
+<div class="chat-panel" [class.open]="isOpen">
+  <div class="chat-header">
+    <div>
+      <div class="chat-title">Marketplace Assistant</div>
+      <div class="chat-subtitle">Ask about products, checkout, and roles</div>
+    </div>
+    <button class="chat-close" type="button" (click)="closeChat()" aria-label="Close chat">
+      <i class="bi bi-x"></i>
+    </button>
+  </div>
+
+  <div class="chat-body">
+    <div class="chat-suggestions" *ngIf="messages.length <= 1">
+      <div class="suggestion-title">Suggested questions</div>
+      <div class="suggestion-list">
+        <button
+          type="button"
+          class="suggestion-chip"
+          *ngFor="let question of suggestedQuestions; trackBy: trackByIndex"
+          (click)="useSuggestion(question)"
+        >
+          {{ question }}
+        </button>
+      </div>
+    </div>
+
+    <div class="chat-messages">
+      <div
+        class="chat-message"
+        *ngFor="let message of messages; trackBy: trackByIndex"
+        [class.user]="message.role === 'user'"
+        [class.assistant]="message.role === 'assistant'"
+      >
+        <div class="bubble">{{ message.text }}</div>
+      </div>
+
+      <div class="chat-message assistant" *ngIf="isLoading">
+        <div class="bubble typing">Thinking...</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="chat-input">
+    <input
+      type="text"
+      placeholder="Type your question..."
+      [(ngModel)]="messageText"
+      (keyup.enter)="sendMessage()"
+    />
+    <button type="button" (click)="sendMessage()" [disabled]="isLoading">
+      Send
+    </button>
+  </div>
+</div>

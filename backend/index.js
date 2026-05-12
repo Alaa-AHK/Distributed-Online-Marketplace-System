@@ -2,6 +2,7 @@ import http from "http";
 import { Server } from "socket.io";
 import express from "express";
 import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
 import { connectDatabases } from "./db/config/db.js";
 import { UserRoutes } from "./src/modules/user/user.routes.js";
 import { ProductRoutes } from "./src/modules/product/product.routes.js";
@@ -12,8 +13,11 @@ import TransactionRoutes from './src/modules/transaction/transaction.routes.js';
 import { walletRoutes } from "./src/modules/wallet/wallet.routes.js";
 import { ReportRoutes } from "./src/modules/report/report.routes.js";
 import { ChatRoutes } from "./src/modules/chat/chat.routes.js";
+import { AiRoutes } from "./src/modules/ai/ai.routes.js";
 import { chatSocket } from "./src/modules/chat/chat.socketio.js";
 import path from "path";
+
+dotenv.config();
 
 const app = express()
 const server = http.createServer(app);
@@ -64,6 +68,7 @@ app.use(TransactionRoutes)
 app.use(walletRoutes)
 app.use(ReportRoutes)
 app.use(ChatRoutes)
+app.use(AiRoutes)
 
 app.get('/health', (req, res) => {
   res.json({ status: "ok" })

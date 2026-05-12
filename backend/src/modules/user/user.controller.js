@@ -1,7 +1,6 @@
 import bcrypt from"bcrypt";
 import { userModel}from "../../../db/models/user.model.js"
 import jwt from"jsonwebtoken"
-import { sendMail } from "../../utilities/email/sendEmail.js"
 import { productModel } from "../../../db/models/product.model.js";
 
 const emailsAdmin=["salmaramadan348@gmail.com","salma.ramadan.mohammed@gmail.com"]
@@ -101,10 +100,6 @@ const register = async (req, res) => {
     };
 
     const addedUser = await userModel.create(userData);
-
-    sendMail(email).catch((error) => {
-      console.error("sendMail failed:", error?.message ?? error);
-    });
 
     addedUser.password = undefined;
 

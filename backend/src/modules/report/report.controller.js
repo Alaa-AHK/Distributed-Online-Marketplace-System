@@ -88,4 +88,23 @@ const summaryReport = async (req, res) => {
   }
 };
 
-export { summaryReport };
+// ADD THIS NEW FUNCTION (public, no auth required)
+const publicSummaryReport = async (req, res) => {
+  try {
+    const totalTransactions = await transactionModel.countDocuments();
+
+    const revenueResult = await transactionModel.aggregate([
+      { $group: { _id: null, total: { $sum: "$price" } } }
+    ]);
+
+    res.json({
+      totalTransactions,
+      totalRevenue: revenueResult[0]?.total || 0,
+      generatedAt: new Date()
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export { summaryReport, publicSummaryReport };
