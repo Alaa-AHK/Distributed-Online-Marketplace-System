@@ -13,6 +13,7 @@ import { OrderDetailsComponent } from './components/order-details/order-details.
 import { UpdateProductComponent } from './components/update-product/update-product.component';
 import { AddAdminComponent } from './components/add-admin/add-admin.component';
 import { ProfileComponent } from './components/profile/profile.component';
+import { ReportComponent } from './components/report/report.component';
 import { ChatComponent } from './components/chat/chat.component';
 import { ChatPageComponent } from './components/chat-page/chat-page.component';
 
@@ -32,6 +33,7 @@ export const routes: Routes = [
     {path:'addAdmin',component:AddAdminComponent},
     {path:'profile',component:ProfileComponent,title:'Profile'},
     { path: 'chat', component: ChatPageComponent },
+    { path: 'report', component: ReportComponent, title: 'My Report' },
     {path:'**',component:NotfoundComponent,title:'NotFound | page'}
 
 ];
