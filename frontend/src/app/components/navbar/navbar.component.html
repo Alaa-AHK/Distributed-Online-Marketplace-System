@@ -1,26 +1,61 @@
 <div class="header">
-    <img class="logo" src="/images/logo.png" />
-    <div class="header-links">
-      <a routerLink="home" routerLinkActive="active">Home</a>
-      <a routerLink="product" routerLinkActive="active">product</a>
-      @if(userRole==='buyer'){
-<a routerLink="orderDetails" routerLinkActive="active">Orders</a>
-      }
 
-      <a routerLink="about" routerLinkActive="active">About</a>
-      <a routerLink="profile" routerLinkActive="active">profile</a>
-      <a routerLink="chat" routerLinkActive="active">
-        <i class="bi bi-chat-dots-fill"></i>
+  <img class="logo" src="/images/logo.png" />
+
+  <div class="header-links">
+
+    <a routerLink="home" routerLinkActive="active">Home</a>
+
+    <a routerLink="product" routerLinkActive="active">Product</a>
+
+    <!-- ADMIN ONLY -->
+    @if(userRole === 'admin') {
+      <a routerLink="/report" routerLinkActive="active">
+        Report
       </a>
+    }
 
-<!-- Cart Icon -->
- @if(userRole==='buyer'){
-<a routerLink="cart" routerLinkActive="active">
-      <i class="bi bi-cart-check-fill"></i>
+    <!-- BUYER ONLY -->
+    @if(userRole === 'buyer') {
+      <a routerLink="orderDetails" routerLinkActive="active">
+        Orders
       </a>
- }
+    }
 
+    <a routerLink="about" routerLinkActive="active">About</a>
 
-      <button class="btn" routerLink="login">SIGN IN</button>
-    </div>
+    <a routerLink="profile" routerLinkActive="active">Profile</a>
+
+    <a routerLink="chat" routerLinkActive="active">
+      <i class="bi bi-chat-dots-fill"></i>
+    </a>
+
+    <!-- CART (BUYER ONLY) -->
+    @if(userRole === 'buyer') {
+      <a routerLink="cart" routerLinkActive="active">
+        <i class="bi bi-cart-check-fill"></i>
+      </a>
+    }
+
+    <!-- LOGIN / LOGOUT SECTION -->
+    @if(isLoggedIn) {
+
+      <span style="color: white; padding: 5px 15px;">
+        {{ userRole }}
+      </span>
+
+      <button class="btn" (click)="logout()">
+        SIGN OUT
+      </button>
+
+    } @else {
+
+      <button class="btn" routerLink="login">
+        SIGN IN
+      </button>
+
+    }
+
   </div>
+
+</div>
