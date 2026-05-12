@@ -40,18 +40,18 @@
         </div>
       </div>
 
-      <div class="messages-area">
+      <div class="messages-area" #messagesContainer>
         <div *ngIf="messages.length === 0" class="no-messages">
           No messages yet. Say hello! 👋
         </div>
 
         <div *ngFor="let msg of messages"
-             [class]="msg.senderId?.toString() === myId ? 'message sent' : 'message received'">
-          <div class="message-bubble">
-            <p>{{ msg.content }}</p>
-            <small>{{ msg.createdAt | date:'shortTime' }}</small>
-          </div>
-        </div>
+     [class]="msg.senderId?.toString() === myId ? 'message sent' : 'message received'">
+  <div class="message-bubble">
+    <p>{{ msg.content }}</p>
+    <small>{{ msg.createdAt | date:'MMM d, y · h:mm a' }}</small>
+  </div>
+</div>
       </div>
 
       <div class="message-input-area">
@@ -63,3 +63,4 @@
     </ng-container>
   </div>
 </div>
+
