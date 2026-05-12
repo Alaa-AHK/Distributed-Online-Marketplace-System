@@ -1,12 +1,13 @@
 import { Component } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../Services/auth.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, RouterLink, CommonModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
@@ -41,13 +42,13 @@ export class LoginComponent {
             "Bearer " + res.token
           );
 
-          // 🔥 DECODE ROLE
+          //DECODE ROLE
           const decoded: any = JSON.parse(atob(res.token.split('.')[1]));
 
-          // 🔥 UPDATE ROLE STATE (IMPORTANT)
+          //UPDATE ROLE STATE (IMPORTANT)
           this.authService.setRole(decoded.role);
 
-          // 🚀 NAVIGATE
+          //NAVIGATE
           this.router.navigate(['/home']);
         },
 

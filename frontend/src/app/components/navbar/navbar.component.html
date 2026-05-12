@@ -21,6 +21,11 @@
  }
 
 
-      <button class="btn" routerLink="login">SIGN IN</button>
+  @if(isLoggedIn){
+    <span style="color: white; padding: 5px 15px;">{{ userRole }}</span>
+    <button class="btn" (click)="logout()">SIGN OUT</button>
+  } @else {
+    <button class="btn" routerLink="login">SIGN IN</button>
+  }
     </div>
   </div>
