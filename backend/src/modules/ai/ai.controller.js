@@ -1,125 +1,10 @@
+import { ChatOpenAI } from "@langchain/openai";
+import { DynamicTool } from "@langchain/core/tools";
+import { AgentExecutor, createOpenAIFunctionsAgent } from "langchain/agents";
+import { ChatPromptTemplate, MessagesPlaceholder } from "@langchain/core/prompts";
 import { productModel } from "../../../db/models/product.model.js";
 import { transactionModel } from "../../../db/models/transaction.model.js";
 import { servicesData } from "./services.data.js";
-
-const HF_API_URL = "https://router.huggingface.co/v1/chat/completions";
-const HF_MODEL_ID = process.env.HF_MODEL_ID || "meta-llama/Meta-Llama-3-8B-Instruct:fastest";
-
-const formatCurrency = (value) => {
-  if (value === null || value === undefined || Number.isNaN(Number(value))) {
-    return "?";
-  }
-  return `$${Number(value).toFixed(2)}`;
-};
-
-const buildContext = ({ products, report, services }) => {
-  const servicesText = services.map((service, index) => `${index + 1}. ${service}`).join("\n");
-  const productsText = products
-    .slice(0, 8)
-    .map((product) => {
-      const price = formatCurrency(product.price);
-      const stock = product.quantity ?? "?";
-      const brand = product.brand || "?";
-      return `- ${product.title} | Brand: ${brand} | Price: ${price} | Stock: ${stock}`;
-    })
-    .join("\n");
-
-  return [
-    "SERVICES:\n" + servicesText,
-    "PRODUCTS (max 8):\n" + (productsText || "No products available."),
-    `REPORT:\nTotal transactions: ${report.totalTransactions}\nTotal revenue: $${report.totalRevenue}`
-  ].join("\n\n");
-};
-
-const formatProductListAnswer = (products) => {
-  if (!products.length) {
-    return "No products are available right now.";
-  }
-
-  const lines = products.slice(0, 8).map((product) => {
-    const price = formatCurrency(product.price);
-    const stock = product.quantity ?? "?";
-    return `- ${product.title} (${price}, ${stock} in stock)`;
-  });
-
-  return `Here are the available products:\n${lines.join("\n")}`;
-};
-
-const formatCheapestProductAnswer = (products) => {
-  if (!products.length) {
-    return "No products are available right now.";
-  }
-
-  const cheapest = products.reduce((min, product) => {
-    if (min === null) return product;
-    if (product.price === undefined || product.price === null) return min;
-    if (min.price === undefined || min.price === null) return product;
-    return product.price < min.price ? product : min;
-  }, null);
-
-  if (!cheapest) {
-    return "No products are available right now.";
-  }
-
-  const price = formatCurrency(cheapest.price);
-  const stock = cheapest.quantity ?? "?";
-  return `The cheapest product is ${cheapest.title}.\n- Price: ${price}\n- Stock: ${stock}`;
-};
-
-const shouldListProducts = (question) => {
-  const q = question.toLowerCase();
-  return q.includes("products") && (q.includes("available") || q.includes("list") || q.includes("show"));
-};
-
-const shouldFindCheapest = (question) => {
-  const q = question.toLowerCase();
-  return q.includes("cheapest") || q.includes("lowest price");
-};
-
-const callHuggingFace = async (prompt) => {
-  if (!process.env.HF_API_KEY) {
-    return { error: "HF_API_KEY is missing on the server." };
-  }
-
-  const payload = {
-    model: HF_MODEL_ID,
-    messages: [
-      {
-        role: "system",
-        content:
-          "You are a helpful assistant for an online marketplace. Answer using ONLY the data provided. Start with a short paragraph, then add bullet points if helpful. If listing products, use bullet points (max 8) with name, price, and stock."
-      },
-      { role: "user", content: prompt }
-    ],
-    max_tokens: 150,
-    temperature: 0.4
-  };
-
-  const response = await fetch(HF_API_URL, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${process.env.HF_API_KEY}`,
-      "Content-Type": "application/json",
-      Accept: "application/json"
-    },
-    body: JSON.stringify(payload)
-  });
-
-  const rawText = await response.text();
-  let json;
-  try {
-    json = JSON.parse(rawText);
-  } catch {
-    return { error: `LLM non-JSON response (status ${response.status}).`, raw: rawText.slice(0, 200) };
-  }
-
-  if (json.error) {
-    return { error: json.error.message || json.error };
-  }
-
-  const choice = json.choices?.[0]?.message?.content || "";
-  return { answer: choice.trim() };
-};
 
 export const getServices = (req, res) => {
   res.json({ services: servicesData });
@@ -127,40 +12,75 @@ export const getServices = (req, res) => {
 
 export const askAi = async (req, res) => {
   try {
-    const question = (req.body?.question || "").trim();
+    const { question } = req.body;
+
     if (!question) {
-      return res.status(400).json({ error: "Question is required." });
+      return res.status(400).json({ error: "Question is required in the request body." });
     }
 
-    const [products, totalTransactions, revenueResult] = await Promise.all([
-      productModel.find({ status: "available" }).select("title brand price quantity").limit(20).lean(),
-      transactionModel.countDocuments(),
-      transactionModel.aggregate([{ $group: { _id: null, total: { $sum: "$price" } } }])
+    // 1. Initialize the Language Model (The Brain)
+    const model = new ChatOpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+      temperature: 0
+    });
+
+    // 2. Define the Tools (The Capabilities)
+    const tools = [
+      // Inventory Tool
+      new DynamicTool({
+        name: "inventory_tool",
+        description: "Useful for searching products, checking prices, and stock availability.",
+        func: async () => {
+          const products = await productModel.find({ status: "available" }).limit(10).lean();
+          return JSON.stringify(products);
+        }
+      }),
+
+      // Analytics Tool
+      new DynamicTool({
+        name: "analytics_tool",
+        description: "Useful for answering questions about profits, revenue, and total sales volume.",
+        func: async () => {
+          const count = await transactionModel.countDocuments();
+          const revenue = await transactionModel.aggregate([
+            { $group: { _id: null, total: { $sum: "$price" } } }
+          ]);
+          return `Total Transactions: ${count}, Total Revenue: $${revenue[0]?.total || 0}`;
+        }
+      })
+    ];
+
+    // 3. Design the Prompt (The Orchestrator Instructions)
+    const prompt = ChatPromptTemplate.fromMessages([
+      [
+        "system",
+        "You are a smart assistant for an e-commerce store. You have access to inventory and analytics tools. Use them accurately to answer user questions based ONLY on the data provided."
+      ],
+      ["human", "{input}"],
+      new MessagesPlaceholder("agent_scratchpad")
     ]);
 
-    const report = {
-      totalTransactions,
-      totalRevenue: revenueResult[0]?.total || 0
-    };
+    // 4. Create the Agent
+    const agent = await createOpenAIFunctionsAgent({
+      llm: model,
+      tools,
+      prompt
+    });
 
-    if (shouldFindCheapest(question)) {
-      return res.json({ answer: formatCheapestProductAnswer(products) });
-    }
+    // 5. The Executor (Manages the Thinking -> Action -> Observation loop)
+    const agentExecutor = new AgentExecutor({
+      agent,
+      tools
+    });
 
-    if (shouldListProducts(question)) {
-      return res.json({ answer: formatProductListAnswer(products) });
-    }
+    // 6. Execute the workflow
+    const result = await agentExecutor.invoke({
+      input: question
+    });
 
-    const context = buildContext({ products, report, services: servicesData });
-    const prompt = `${context}\n\nUser question: ${question}`;
-    const llm = await callHuggingFace(prompt);
-
-    if (llm.error) {
-      return res.status(502).json({ error: llm.error, raw: llm.raw });
-    }
-
-    res.json({ answer: llm.answer });
+    res.json({ answer: result.output });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("AI Agent Error:", error);
+    res.status(500).json({ error: "Internal Server Error", message: error.message });
   }
 };
