@@ -15,8 +15,8 @@
       </a>
     }
 
-    <!-- BUYER ONLY -->
-    @if(userRole === 'buyer') {
+    
+    @if(userRole === 'user') {
       <a routerLink="orderDetails" routerLinkActive="active">
         Orders
       </a>
@@ -30,8 +30,8 @@
       <i class="bi bi-chat-dots-fill"></i>
     </a>
 
-    <!-- CART (BUYER ONLY) -->
-    @if(userRole === 'buyer') {
+   
+    @if(userRole === 'user') {
       <a routerLink="cart" routerLinkActive="active">
         <i class="bi bi-cart-check-fill"></i>
       </a>

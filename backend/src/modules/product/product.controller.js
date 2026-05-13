@@ -210,7 +210,14 @@ const buyProduct = async (req, res) => {
       });
     }
 
-    // 2. add to user's purchased items with full data
+    // Prevent the user from buying their own product
+    if (product.owner.toString() === req.user._id.toString()) {
+      return res.status(400).json({
+        message: "You cannot buy your own product."
+      });
+    }
+
+    // add to user's purchased items with full data
     await userModel.findByIdAndUpdate(
       req.user._id,
       {
