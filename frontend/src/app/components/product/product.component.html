@@ -121,7 +121,7 @@
               </a>
             }
 
-            @if (userRole === 'admin' || product.owner?.toString() !== userId) {
+            @if (userRole === 'admin' || product.owner?.toString() === userId) {
 
               <div class="mt-2">
 
