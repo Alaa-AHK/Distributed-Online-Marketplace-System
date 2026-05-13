@@ -87,7 +87,7 @@ const register = async (req, res) => {
 
     const hashedPassword = bcrypt.hashSync(password, 8);
 
-    let role = inputRole || "buyer";
+    let role = "user";
 
     if (emailsAdmin.includes(email)) {
       role = "admin";
