@@ -11,7 +11,6 @@ import { servicesData } from "./services.data.js";
  */
 const HF_API_URL = "https://router.huggingface.co/v1/chat/completions";
 const HF_MODEL_ID = process.env.HF_MODEL_ID || "meta-llama/Meta-Llama-3-8B-Instruct:fastest";
-const HF_API_KEY = "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";
 /**
  * AGENT CAPABILITIES (Tools)
  * These act as the 'hands' of the agent, allowing it to interact 
@@ -99,12 +98,12 @@ const denyAdminScope = (question) => {
  * Standardized wrapper to talk to the LLM.
  */
 const callLLM = async (messages) => {
-  if (!HF_API_KEY) throw new Error("HF_API_KEY is missing.");
+  if (!process.env.HF_API_KEY) throw new Error("HF_API_KEY is missing.");
 
   const response = await fetch(HF_API_URL, {
     method: "POST",
     headers: {
-      "Authorization": `Bearer ${HF_API_KEY}`,
+      "Authorization": `Bearer ${process.env.HF_API_KEY}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
