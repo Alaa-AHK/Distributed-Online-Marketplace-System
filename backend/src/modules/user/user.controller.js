@@ -223,9 +223,9 @@ const getMe = async (req, res) => {
       user: {
         _id: user._id,
         email: user.email,
+        userName: user.userName,
         role: user.role,
 
-        // 🔥 بدل IDs → full products
         purchasedItems: purchasedProducts,
         soldItems: soldProducts,
 
